@@ -18,8 +18,6 @@ import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 import static org.talend.dataprep.test.SameJSONFile.sameJSONAsFile;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
@@ -129,6 +127,53 @@ public class DataSetAPITest extends ApiServiceTestBase {
 
         // then
         assertTrue(list.contains(dataSetId));
+    }
+
+    @Test
+    public void shouldListPreparationSummary() throws Exception {
+
+        // given
+        for (int i = 0; i < 6; i++) {
+            final String dataSetId = createDataset("dataset/dataset.csv", "testDataset-" + i, "text/csv");
+            for (int j = 0; j < 6; j++) {
+                createPreparationFromDataset(dataSetId, "preparation-" + i + "-" + j);
+            }
+        }
+
+        // when
+        final Response response = when().get("/api/datasets/summary");
+
+        // then
+        assertEquals(200, response.getStatusCode());
+        // because an empty constructor cannot be added to the the EnrichedDataSetMetadata, tree parsing is mandatory
+        final JsonNode rootNode = mapper.readTree(response.asInputStream());
+        assertTrue(rootNode.isArray());
+        assertEquals(3, rootNode.size());
+        for (JsonNode dataset : rootNode) {
+            checkNotNull(dataset, "id");
+            checkNotNull(dataset, "name");
+            checkNotNull(dataset, "preparations");
+            final JsonNode preparations = dataset.get("preparations");
+            assertTrue(preparations.isArray());
+            for (JsonNode preparation : preparations) {
+                checkNotNull(preparation, "id");
+                checkNotNull(preparation, "name");
+                checkNotNull(preparation, "nbSteps");
+                checkNotNull(preparation, "lastModificationDate");
+            }
+        }
+    }
+
+    /**
+     * Check that a field is there and not null in the given json node.
+     * 
+     * @param node the parent json node.
+     * @param fieldName the field name to check.
+     */
+    private void checkNotNull(JsonNode node, String fieldName) {
+        assertTrue(node.has(fieldName));
+        final JsonNode field = node.get(fieldName);
+        assertFalse(field.isNull());
     }
 
     @Test
