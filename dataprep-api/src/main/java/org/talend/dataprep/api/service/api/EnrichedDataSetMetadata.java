@@ -55,6 +55,7 @@ public class EnrichedDataSetMetadata extends DataSetMetadata {
         this.setSharedDataSet(source.isSharedDataSet());
         this.setSheetName(source.getSheetName());
         this.setTag(source.getTag());
+        this.getGovernance().setCertificationStep(source.getGovernance().getCertificationStep());
 
         this.setSchemaParserResult(null); // not interested
         this.getContent().getParameters().clear(); // not interested
