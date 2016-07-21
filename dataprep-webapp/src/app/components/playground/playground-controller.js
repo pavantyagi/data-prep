@@ -25,9 +25,9 @@
  * @requires data-prep.services.utils.service:MessageService
  */
 export default function PlaygroundCtrl($timeout, $state, $stateParams, state, StateService,
-    PlaygroundService, DatasetService, PreparationService,
-    PreviewService,
-    OnboardingService, LookupService, MessageService) {
+                                       PlaygroundService, DatasetService, PreparationService,
+                                       PreviewService, RecipeService, RecipeBulletService,
+                                       OnboardingService, LookupService, MessageService) {
     'ngInject';
 
     const vm = this;
@@ -270,49 +270,47 @@ export default function PlaygroundCtrl($timeout, $state, $stateParams, state, St
      * @description open a preparation
      * @param {string} prepid The preparation id
      */
-    function loadPreparation(prepid) {
-        const preparation = _.find(state.inventory.preparations, { id: prepid });
-        if (!preparation) {
-            errorGoBack({ type: 'preparation' });
-        }
-        else {
-            PlaygroundService.load(preparation)
-                .then(() => {
-                    if (shouldFetchStatistics()) {
-                        fetchStatistics();
-                    }
-                })
-                .catch(() => errorGoBack({ type: 'preparation' }));
-        }
+    function loadPreparation() {
+        PlaygroundService.load(state.playground.preparation)
+            .then(() => {
+                if (shouldFetchStatistics()) {
+                    fetchStatistics();
+                }
+            })
+            .catch(() => errorGoBack({ type: 'preparation' }));
     }
 
     /**
      * @ngdoc method
      * @name loadDataset
      * @description open a dataset
-     * @param {string} datasetid The dataset id
+o
      */
-    function loadDataset(datasetid) {
-        const dataset = _.find(state.inventory.datasets, { id: datasetid });
-        if (!dataset) {
-            errorGoBack({ type: 'dataset' });
-        }
-        else {
-            PlaygroundService.initPlayground(dataset)
-                .then(() => {
-                    if (shouldFetchStatistics()) {
-                        fetchStatistics();
-                    }
-                })
-                .catch(() => errorGoBack({ type: 'dataset' }));
-        }
+    function loadDataset() {
+        PlaygroundService.initPlayground(state.playground.dataset)
+            .then(() => {
+                if (shouldFetchStatistics()) {
+                    fetchStatistics();
+                }
+            })
+            .catch(() => errorGoBack({ type: 'dataset' }));
     }
 
     if ($stateParams.prepid) {
-        loadPreparation($stateParams.prepid);
+        PreparationService.getDetails($stateParams.prepid)
+            .then((response) => {
+                StateService.setCurrentPreparation(response);
+                return response;
+            })
+            .then(loadPreparation);
     }
     else if ($stateParams.datasetid) {
-        loadDataset($stateParams.datasetid);
+        DatasetService.getMetadata($stateParams.datasetid)
+            .then((response) => {
+                StateService.setCurrentDataset(response);
+                return response;
+            })
+            .then(loadDataset);
     }
 }
 

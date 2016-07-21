@@ -214,7 +214,7 @@ describe('Preparation REST Service', () => {
             //when
             PreparationRestService.getDetails(preparationId)
                 .then((response) => {
-                    details = response.data
+                    details = response;
                 });
             $httpBackend.flush();
             $rootScope.$digest();

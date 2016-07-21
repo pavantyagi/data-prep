@@ -123,19 +123,20 @@ export default function DatasetSheetPreviewService(DatasetService) {
      * @ngdoc method
      * @name loadPreview
      * @methodOf data-prep.services.dataset.service:DatasetSheetPreviewService
-     * @param {object} metadata The dataset metadata to load
+     * @param {object} dataset The dataset metadata to load
      * @param {boolean} addPreparation The dataset draft is used to add a preparation
      * @param {string} preparationName The preparation name
      * @description Set the metadata containing the dataset sheets, and get the preview of the default (last) selected sheet
      */
-    this.loadPreview = function (metadata, addPreparation, preparationName) {
-        self.currentMetadata = angular.copy(metadata, {});
+    this.loadPreview = function (dataset, addPreparation, preparationName) {
+        self.currentMetadata = null;
         self.selectedSheetName = null;
         self.addPreparation = addPreparation;
         self.preparationName = preparationName;
         resetGrid();
-        return DatasetService.getSheetPreview(metadata)
+        return DatasetService.getSheetPreview(dataset)
             .then(function (response) {
+                self.currentMetadata = response.metadata;
                 self.selectedSheetName = response.metadata.sheetName;
                 setGridData(response);
             });

@@ -347,24 +347,6 @@ describe('Playground Service', () => {
             assertDatasetLoadInitialized({ id: '1' }, data);
         }));
 
-        it('should NOT change playground if the preparation to load is already loaded', inject(($rootScope, PlaygroundService) => {
-            // given
-            const preparation = {
-                id: '6845521254541',
-                dataset: { id: '1', name: 'my dataset' }
-            };
-            stateMock.playground.dataset = {};
-            stateMock.playground.preparation = preparation;
-
-            // when
-            PlaygroundService.load(preparation);
-            $rootScope.$apply();
-
-            // then
-            assertDatasetLoadNotInitialized();
-            expect($rootScope.$emit).not.toHaveBeenCalled();
-        }));
-
         it('should load preparation content at a specific step', inject(($rootScope, StateService, PlaygroundService, RecipeService, DatagridService, PreviewService) => {
             // given
             const step = {

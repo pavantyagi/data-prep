@@ -123,7 +123,7 @@ export default function DatasetRestService($rootScope, $upload, $http, RestURLs)
      * @returns {Promise} The GET call promise
      */
     function getDatasets(sortType, sortOrder, deferredAbort) {
-        let url = RestURLs.datasetUrl;
+        let url = RestURLs.datasetUrl + '/summary';
 
         if (sortType) {
             url += '?sort=' + sortType;

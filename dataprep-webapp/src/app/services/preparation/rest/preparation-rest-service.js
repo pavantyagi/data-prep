@@ -84,7 +84,7 @@ export default function PreparationRestService($http, RestURLs) {
      * @returns {promise} The GET promise
      */
     function getDetails(preparationId) {
-        return $http.get(`${RestURLs.preparationUrl}/${preparationId}/details`);
+        return $http.get(`${RestURLs.preparationUrl}/${preparationId}/details`).then((response) => response.data);
     }
 
     //---------------------------------------------------------------------------------

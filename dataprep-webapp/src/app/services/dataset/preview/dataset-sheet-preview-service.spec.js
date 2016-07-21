@@ -109,6 +109,18 @@ describe('Dataset Sheet Preview Service', function () {
             expect(DatasetSheetPreviewService.selectedSheetName).toBeFalsy();
         }));
 
+        it('should reset currentMetadata', inject(function (DatasetSheetPreviewService) {
+            //given
+            var metadata = { id: '74a856ef486b', name: 'my dataset' };
+            DatasetSheetPreviewService.currentMetadata = {};
+
+            //when
+            DatasetSheetPreviewService.loadPreview(metadata);
+
+            //then
+            expect(DatasetSheetPreviewService.currentMetadata).toBeFalsy();
+        }));
+
         it('should set addPreparation', inject(function (DatasetSheetPreviewService) {
             //given
             var metadata = { id: '74a856ef486b', name: 'my dataset' };
@@ -132,6 +144,19 @@ describe('Dataset Sheet Preview Service', function () {
 
             //then
             expect(DatasetSheetPreviewService.selectedSheetName).toBe(expectedSheetName);
+        }));
+
+        it('should call sheet preview service and set current metadata', inject(function ($rootScope, DatasetSheetPreviewService) {
+            //given
+            var metadata = { id: '74a856ef486b', name: 'my dataset' };
+            var expectedMetadata = previewResponse.metadata;
+
+            //when
+            DatasetSheetPreviewService.loadPreview(metadata);
+            $rootScope.$digest();
+
+            //then
+            expect(DatasetSheetPreviewService.currentMetadata).toBe(expectedMetadata);
         }));
 
         it('should call sheet preview service and update grid', inject(function ($rootScope, DatasetService, DatasetSheetPreviewService) {

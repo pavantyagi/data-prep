@@ -35,7 +35,7 @@ describe('Dataset Rest Service', () => {
                 { name: 'Customers (1K lines)' }
             ];
             $httpBackend
-                .expectGET(RestURLs.datasetUrl)
+                .expectGET(RestURLs.datasetUrl + '/summary')
                 .respond(200, datasets);
 
             //when
@@ -58,7 +58,7 @@ describe('Dataset Rest Service', () => {
                 { name: 'Customers (1K lines)' }
             ];
             $httpBackend
-                .expectGET(RestURLs.datasetUrl + '?sort=name&order=asc')
+                .expectGET(RestURLs.datasetUrl + '/summary' + '?sort=name&order=asc')
                 .respond(200, datasets);
 
             //when
@@ -81,7 +81,7 @@ describe('Dataset Rest Service', () => {
                 { name: 'Customers (1K lines)' }
             ];
             $httpBackend
-                .expectGET(RestURLs.datasetUrl + '?sort=name')
+                .expectGET(RestURLs.datasetUrl + '/summary' + '?sort=name')
                 .respond(200, datasets);
 
             //when
@@ -104,7 +104,7 @@ describe('Dataset Rest Service', () => {
                 { name: 'Customers (1K lines)' }
             ];
             $httpBackend
-                .expectGET(RestURLs.datasetUrl + '?order=asc')
+                .expectGET(RestURLs.datasetUrl + '/summary' + '?order=asc')
                 .respond(200, datasets);
 
             //when

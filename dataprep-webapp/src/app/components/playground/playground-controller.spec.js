@@ -114,40 +114,83 @@ describe('Playground controller', () => {
         }));
 
         describe('preparation', () => {
-            it('should load playground', inject(($q, $stateParams, PlaygroundService) => {
+            beforeEach(inject(($q, PreparationService, StateService) => {
+                spyOn(PreparationService, 'getDetails').and.returnValue($q.when(preparations[0]));
+                spyOn(StateService, 'setCurrentPreparation');
+            }));
+
+            it('should save preparation', inject(($q, $stateParams, PlaygroundService, StateService) => {
                 //given
                 $stateParams.prepid = preparations[0].id;
+                stateMock.playground.data = {
+                    metadata: {
+                        columns: [{
+                            statistics: {
+                                frequencyTable: [{ // stats already computed
+                                    value: 'toto',
+                                    frequency: 10
+                                }]
+                            }
+                        }]
+                    }
+                };
                 spyOn(PlaygroundService, 'load').and.returnValue($q.when());
 
                 //when
                 createController();
+                scope.$digest();
 
                 //then
-                expect(PlaygroundService.load).toHaveBeenCalledWith(preparations[0]);
+                expect(StateService.setCurrentPreparation).toHaveBeenCalledWith(preparations[0]);
             }));
 
-            it('should go back to previous state when preparation does NOT exist', inject(($state, $stateParams, MessageService) => {
+
+            it('should load playground', inject(($q, $stateParams, PlaygroundService) => {
                 //given
-                $stateParams.prepid = 'non existing prep';
-                $stateParams.datasetid = null;
+                $stateParams.prepid = preparations[0].id;
+                stateMock.playground.data = {
+                    metadata: {
+                        columns: [{
+                            statistics: {
+                                frequencyTable: [{ // stats already computed
+                                    value: 'toto',
+                                    frequency: 10
+                                }]
+                            }
+                        }]
+                    }
+                };
+                spyOn(PlaygroundService, 'load').and.returnValue($q.when());
 
                 //when
                 createController();
+                scope.$digest();
 
                 //then
-                expect(MessageService.error).toHaveBeenCalledWith('PLAYGROUND_FILE_NOT_FOUND_TITLE', 'PLAYGROUND_FILE_NOT_FOUND', { type: 'preparation' });
-                expect($state.go).toHaveBeenCalledWith('nav.index.preparations', undefined);
+                expect(PlaygroundService.load).toHaveBeenCalled();
             }));
 
             it('should go back to previous state when preparation content GET return an error', inject(($q, $state, $stateParams, MessageService, PlaygroundService) => {
                 //given
                 $stateParams.prepid = 'non existing prep';
                 $stateParams.datasetid = null;
+                stateMock.playground.data = {
+                    metadata: {
+                        columns: [{
+                            statistics: {
+                                frequencyTable: [{ // stats already computed
+                                    value: 'toto',
+                                    frequency: 10
+                                }]
+                            }
+                        }]
+                    }
+                };
                 spyOn(PlaygroundService, 'load').and.returnValue($q.reject());
 
                 //when
                 createController();
-
+                scope.$digest();
                 //then
                 expect(MessageService.error).toHaveBeenCalledWith('PLAYGROUND_FILE_NOT_FOUND_TITLE', 'PLAYGROUND_FILE_NOT_FOUND', { type: 'preparation' });
                 expect($state.go).toHaveBeenCalledWith('nav.index.preparations', undefined);
@@ -250,17 +293,62 @@ describe('Playground controller', () => {
         });
 
         describe('dataset', () => {
-            it('should load playground', inject(($q, $stateParams, PlaygroundService) => {
+
+            beforeEach(inject(($q, DatasetService, StateService) => {
+                spyOn(DatasetService, 'getMetadata').and.returnValue($q.when(datasets[0]));
+                spyOn(StateService, 'setCurrentDataset');
+            }));
+
+            it('should save dataset', inject(($q, $stateParams, PlaygroundService, StateService) => {
                 //given
                 $stateParams.prepid = null;
                 $stateParams.datasetid = 'de3cc32a-b624-484e-b8e7-dab9061a009c';
+                stateMock.playground.data = {
+                    metadata: {
+                        columns: [{
+                            statistics: {
+                                frequencyTable: [{ // stats already computed
+                                    value: 'toto',
+                                    frequency: 10
+                                }]
+                            }
+                        }]
+                    }
+                };
                 spyOn(PlaygroundService, 'initPlayground').and.returnValue($q.when());
 
                 //when
                 createController();
+                scope.$digest();
 
                 //then
-                expect(PlaygroundService.initPlayground).toHaveBeenCalledWith(datasets[0]);
+                expect(StateService.setCurrentDataset).toHaveBeenCalledWith(datasets[0]);
+            }));
+
+            it('should load playground', inject(($q, $stateParams, PlaygroundService) => {
+                //given
+                $stateParams.prepid = null;
+                $stateParams.datasetid = 'de3cc32a-b624-484e-b8e7-dab9061a009c';
+                stateMock.playground.data = {
+                    metadata: {
+                        columns: [{
+                            statistics: {
+                                frequencyTable: [{ // stats already computed
+                                    value: 'toto',
+                                    frequency: 10
+                                }]
+                            }
+                        }]
+                    }
+                };
+                spyOn(PlaygroundService, 'initPlayground').and.returnValue($q.when());
+
+                //when
+                createController();
+                scope.$digest();
+
+                //then
+                expect(PlaygroundService.initPlayground).toHaveBeenCalled();
             }));
 
             it('should fetch statistics when they are not computed yet', inject(($q, $stateParams, PlaygroundService, StateService) => {
@@ -358,19 +446,6 @@ describe('Playground controller', () => {
                 expect(PlaygroundService.updateStatistics).not.toHaveBeenCalled();
             }));
 
-            it('should go back to previous state when dataset does NOT exist', inject(($state, $stateParams, MessageService) => {
-                //given
-                $stateParams.prepid = null;
-                $stateParams.datasetid = 'non existing dataset';
-
-                //when
-                createController();
-
-                //then
-                expect(MessageService.error).toHaveBeenCalledWith('PLAYGROUND_FILE_NOT_FOUND_TITLE', 'PLAYGROUND_FILE_NOT_FOUND', { type: 'dataset' });
-                expect($state.go).toHaveBeenCalledWith('nav.index.preparations', undefined);
-            }));
-
             it('should go back to previous state when dataset content GET return an error', inject(($q, $state, $stateParams, MessageService, PlaygroundService) => {
                 //given
                 $stateParams.prepid = null;
@@ -379,6 +454,7 @@ describe('Playground controller', () => {
 
                 //when
                 createController();
+                scope.$digest();
 
                 //then
                 expect(MessageService.error).toHaveBeenCalledWith('PLAYGROUND_FILE_NOT_FOUND_TITLE', 'PLAYGROUND_FILE_NOT_FOUND', { type: 'dataset' });

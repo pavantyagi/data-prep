@@ -18,10 +18,10 @@ describe('Preparation Creator Controller', () => {
     let stateMock;
 
     const urlQueries = {
-        RECENT_DATASETS: '/api/datasets?sort=MODIF&limit=true&name=',
-        FAVORITE_DATASETS: '/api/datasets?favorite=true&name=',
-        CERTIFIED_DATASETS: '/api/datasets?certified=true&name=',
-        ALL_DATASETS: '/api/datasets?name='
+        RECENT_DATASETS: '/api/datasets/summary?sort=MODIF&limit=true&name=',
+        FAVORITE_DATASETS: '/api/datasets/summary?favorite=true&name=',
+        CERTIFIED_DATASETS: '/api/datasets/summary?certified=true&name=',
+        ALL_DATASETS: '/api/datasets/summary?name='
     };
 
     const FILTERS_TYPES = {

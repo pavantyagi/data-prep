@@ -99,16 +99,7 @@ import SERVICES_UTILS_MODULE from './services/utils/utils-module';
                 .state('playground', {
                     url: '/playground',
                     template: '<playground></playground>',
-                    abstract: true,
-                    resolve: {
-                        inventory: ($q, DatasetService, PreparationService) => {
-                            'ngInject';
-                            return $q.all([
-                                DatasetService.getDatasets(),
-                                PreparationService.getPreparations(),
-                            ]);
-                        },
-                    },
+                    abstract: true
                 })
                 .state('playground.preparation', { url: '/preparation?prepid' })
                 .state('playground.dataset', { url: '/dataset?datasetid' });

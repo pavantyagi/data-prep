@@ -29,7 +29,7 @@ describe('Home Dataset Component', () => {
         $provide.constant('state', StateMock);
     }));
 
-    beforeEach(inject(($rootScope, $compile, StateService, DatasetService, PreparationService) => {
+    beforeEach(inject(($q, $rootScope, $compile, StateService, DatasetService) => {
         scope = $rootScope.$new();
         createElement = () => {
             element = angular.element('<home-dataset></home-dataset>');
@@ -39,8 +39,7 @@ describe('Home Dataset Component', () => {
         };
 
         spyOn(StateService, 'setFetchingInventoryDatasets').and.returnValue();
-        spyOn(DatasetService, 'init').and.returnValue();
-        spyOn(PreparationService, 'refreshPreparations').and.returnValue();
+        spyOn(DatasetService, 'init').and.returnValue($q.when());
     }));
 
     afterEach(() => {
