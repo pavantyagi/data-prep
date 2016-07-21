@@ -13,12 +13,6 @@
 
 package org.talend.dataprep.api.service.command.dataset;
 
-import static org.talend.dataprep.command.Defaults.emptyStream;
-import static org.talend.dataprep.command.Defaults.pipeStream;
-
-import java.io.InputStream;
-import java.net.URISyntaxException;
-
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
@@ -29,12 +23,20 @@ import org.talend.dataprep.command.GenericCommand;
 import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.APIErrorCodes;
 import org.talend.dataprep.exception.error.CommonErrorCodes;
+import org.talend.dataprep.util.SortAndOrderHelper.Order;
+import org.talend.dataprep.util.SortAndOrderHelper.Sort;
+
+import java.io.InputStream;
+import java.net.URISyntaxException;
+
+import static org.talend.dataprep.command.Defaults.emptyStream;
+import static org.talend.dataprep.command.Defaults.pipeStream;
 
 @Component
 @Scope("request")
 public class DataSetList extends GenericCommand<InputStream> {
 
-    private DataSetList(String sort, String order, String name, boolean certified, boolean favorite, boolean limit) {
+    private DataSetList(Sort sort, Order order, String name, boolean certified, boolean favorite, boolean limit) {
         super(GenericCommand.DATASET_GROUP);
 
         try {
@@ -48,12 +50,12 @@ public class DataSetList extends GenericCommand<InputStream> {
         }
     }
 
-    private HttpRequestBase onExecute(String sort, String order,String name,  boolean certified, boolean favorite, boolean limit) {
+    private HttpRequestBase onExecute(Sort sort, Order order,String name,  boolean certified, boolean favorite, boolean limit) {
         try {
 
             URIBuilder uriBuilder = new URIBuilder(datasetServiceUrl + "/datasets");
-            uriBuilder.addParameter( "sort", sort );
-            uriBuilder.addParameter( "order", order );
+            uriBuilder.addParameter( "sort", sort.name() );
+            uriBuilder.addParameter( "order", order.name() );
             uriBuilder.addParameter( "name", name );
             uriBuilder.addParameter( "certified", Boolean.toString(certified));
             uriBuilder.addParameter( "favorite", Boolean.toString(favorite));

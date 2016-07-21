@@ -13,15 +13,14 @@
 
 package org.talend.dataprep.api.service.api;
 
-import java.io.Serializable;
-import java.util.Objects;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.talend.dataprep.api.dataset.DataSetMetadata;
 import org.talend.dataprep.api.folder.Folder;
 import org.talend.dataprep.api.preparation.Preparation;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Simple bean used to display a preparation and a summary of its related dataset and its location.
@@ -41,6 +40,7 @@ public class EnrichedPreparation extends Preparation {
 
     /**
      * Private constructor used to for code reuse.
+     *
      * @param preparation the preparation to display.
      */
     private EnrichedPreparation(Preparation preparation) {
@@ -78,11 +78,6 @@ public class EnrichedPreparation extends Preparation {
         this.folder = folder;
     }
 
-    /**
-
-    /**
-     * @see Object#equals(Object)  
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -98,31 +93,19 @@ public class EnrichedPreparation extends Preparation {
         return Objects.equals(summary, that.summary) && Objects.equals(folder, this.folder);
     }
 
-    /**
-     * @see Object#hashCode()
-     */
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), summary, folder);
     }
 
-    /**
-     * @return the Summary
-     */
     public DataSetMetadataSummary getSummary() {
         return summary;
     }
 
-    /**
-     * @return the Folder
-     */
     public Folder getFolder() {
         return folder;
     }
 
-    /**
-     * @see Object#toString()
-     */
     @Override
     public String toString() {
         return "EnrichedPreparation{" +
@@ -157,30 +140,18 @@ public class EnrichedPreparation extends Preparation {
             }
         }
 
-        /**
-         * @return the DataSetId
-         */
         public String getDataSetId() {
             return dataSetId;
         }
 
-        /**
-         * @return the DataSetName
-         */
         public String getDataSetName() {
             return dataSetName;
         }
 
-        /**
-         * @return the DataSetNbRow
-         */
         public long getDataSetNbRow() {
             return dataSetNbRow;
         }
 
-        /**
-         * @see Object#toString()
-         */
         @Override
         public String toString() {
             return "DataSetMetadataSummary{" +

@@ -13,13 +13,6 @@
 
 package org.talend.dataprep.api.service.command.preparation;
 
-import static org.talend.dataprep.command.Defaults.emptyStream;
-import static org.talend.dataprep.command.Defaults.pipeStream;
-
-import java.io.InputStream;
-import java.net.URISyntaxException;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
@@ -30,12 +23,20 @@ import org.talend.dataprep.command.GenericCommand;
 import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.APIErrorCodes;
 import org.talend.dataprep.exception.error.CommonErrorCodes;
+import org.talend.dataprep.util.SortAndOrderHelper.Order;
+
+import java.io.InputStream;
+import java.net.URISyntaxException;
+
+import static org.talend.dataprep.command.Defaults.emptyStream;
+import static org.talend.dataprep.command.Defaults.pipeStream;
+import static org.talend.dataprep.util.SortAndOrderHelper.Sort;
 
 @Component
 @Scope("request")
 public class PreparationList extends GenericCommand<InputStream> {
 
-    private PreparationList(Format format, String sort, String order) {
+    private PreparationList(Format format, Sort sort, Order order) {
         super(GenericCommand.PREPARATION_GROUP);
         execute(() -> onExecute(sort, order, format));
         onError(e -> new TDPException(APIErrorCodes.UNABLE_TO_RETRIEVE_PREPARATION_LIST, e));
@@ -44,10 +45,10 @@ public class PreparationList extends GenericCommand<InputStream> {
     }
 
     private PreparationList(Format format) {
-        this(format,"", "");
+        this(format, Sort.NAME, Order.ASC);
     }
 
-    private HttpRequestBase onExecute(String sort, String order, Format format) {
+    private HttpRequestBase onExecute(Sort sort, Order order, Format format) {
         try {
             URIBuilder uriBuilder;
             if (Format.SHORT.equals(format)){
@@ -56,12 +57,8 @@ public class PreparationList extends GenericCommand<InputStream> {
                 uriBuilder = new URIBuilder(preparationServiceUrl + "/preparations/details"); //$NON-NLS-1$
             }
 
-            if  ( StringUtils.isNotEmpty( sort )) {
-                uriBuilder.addParameter("sort", sort);
-            }
-            if  ( StringUtils.isNotEmpty( order )) {
-                uriBuilder.addParameter("order", order);
-            }
+            uriBuilder.addParameter("sort", sort.name());
+            uriBuilder.addParameter("order", order.name());
             return new HttpGet( uriBuilder.build() );
         } catch (URISyntaxException e) {
             throw new TDPException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e);

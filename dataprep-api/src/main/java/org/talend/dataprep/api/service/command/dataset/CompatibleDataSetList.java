@@ -1,12 +1,5 @@
 package org.talend.dataprep.api.service.command.dataset;
 
-
-import static org.talend.dataprep.command.Defaults.emptyStream;
-import static org.talend.dataprep.command.Defaults.pipeStream;
-
-import java.io.InputStream;
-import java.net.URISyntaxException;
-
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
@@ -18,11 +11,19 @@ import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.APIErrorCodes;
 import org.talend.dataprep.exception.error.CommonErrorCodes;
 
+import java.io.InputStream;
+import java.net.URISyntaxException;
+
+import static org.talend.dataprep.command.Defaults.emptyStream;
+import static org.talend.dataprep.command.Defaults.pipeStream;
+import static org.talend.dataprep.util.SortAndOrderHelper.Order;
+import static org.talend.dataprep.util.SortAndOrderHelper.Sort;
+
 @Component
 @Scope("request")
 public class CompatibleDataSetList extends GenericCommand<InputStream> {
 
-    private CompatibleDataSetList(String dataSetId, String sort, String order) {
+    private CompatibleDataSetList(String dataSetId, Sort sort, Order order) {
         super(GenericCommand.DATASET_GROUP);
 
         try {
@@ -36,13 +37,13 @@ public class CompatibleDataSetList extends GenericCommand<InputStream> {
         }
     }
 
-    private HttpRequestBase onExecute(String dataSetId, String sort, String order) {
+    private HttpRequestBase onExecute(String dataSetId, Sort sort, Order order) {
         try {
 
             URIBuilder uriBuilder = new URIBuilder(datasetServiceUrl + "/datasets/" + dataSetId + "/compatibledatasets");
             uriBuilder.addParameter("dataSetId", dataSetId);
-            uriBuilder.addParameter("sort", sort);
-            uriBuilder.addParameter("order", order);
+            uriBuilder.addParameter("sort", sort.name());
+            uriBuilder.addParameter("order", order.name());
 
             return new HttpGet(uriBuilder.build());
         } catch (URISyntaxException e) {

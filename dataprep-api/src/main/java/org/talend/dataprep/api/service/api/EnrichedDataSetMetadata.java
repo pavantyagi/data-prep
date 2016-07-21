@@ -13,16 +13,15 @@
 
 package org.talend.dataprep.api.service.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.talend.dataprep.api.dataset.DataSetMetadata;
+import org.talend.dataprep.api.preparation.Preparation;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.talend.dataprep.api.dataset.DataSetMetadata;
-import org.talend.dataprep.api.preparation.Preparation;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Simple bean used to display a dataset metadata and a summary of its related preparations.
@@ -67,23 +66,14 @@ public class EnrichedDataSetMetadata extends DataSetMetadata {
         }
     }
 
-    /**
-     * @return the Preparations
-     */
     public List<PreparationSummary> getPreparations() {
         return preparations;
     }
 
-    /**
-     * @param preparations the preparations to set.
-     */
     public void setPreparations(List<PreparationSummary> preparations) {
         this.preparations = preparations;
     }
 
-    /**
-     * @see Object#toString()
-     */
     @Override
     public String toString() {
         return "EnrichedDataSetMetadata{" + //
@@ -125,74 +115,46 @@ public class EnrichedDataSetMetadata extends DataSetMetadata {
             this.nbSteps = source.getSteps().size();
         }
 
-        /**
-         * @return the Id
-         */
         public String getId() {
             return id;
         }
 
-        /**
-         * @param id the id to set.
-         */
+
         public void setId(String id) {
             this.id = id;
         }
 
-        /**
-         * @return the Name
-         */
+
         public String getName() {
             return name;
         }
 
-        /**
-         * @param name the name to set.
-         */
         public void setName(String name) {
             this.name = name;
         }
 
-        /**
-         * @return the NbSteps
-         */
         public int getNbSteps() {
             return nbSteps;
         }
 
-        /**
-         * @param nbSteps the nbSteps to set.
-         */
         public void setNbSteps(int nbSteps) {
             this.nbSteps = nbSteps;
         }
 
-        /**
-         * @return the LastModificationDate
-         */
         public long getLastModificationDate() {
             return lastModificationDate;
         }
 
-        /**
-         * @param lastModificationDate the lastModificationDate to set.
-         */
         public void setLastModificationDate(long lastModificationDate) {
             this.lastModificationDate = lastModificationDate;
         }
 
-        /**
-         * @see Object#toString()
-         */
         @Override
         public String toString() {
             return "PreparationSummary{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", nbSteps=" + nbSteps
                     + ", lastModificationDate=" + lastModificationDate + '}';
         }
 
-        /**
-         * @see Object#equals(Object)
-         */
         @Override
         public boolean equals(Object o) {
             if (this == o) {
@@ -206,9 +168,6 @@ public class EnrichedDataSetMetadata extends DataSetMetadata {
                     && Objects.equals(name, that.name);
         }
 
-        /**
-         * @see Object#hashCode()
-         */
         @Override
         public int hashCode() {
             return Objects.hash(id, name, nbSteps, lastModificationDate);
