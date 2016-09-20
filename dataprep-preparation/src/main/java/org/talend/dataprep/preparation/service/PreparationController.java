@@ -13,13 +13,14 @@
 
 package org.talend.dataprep.preparation.service;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +33,9 @@ import org.talend.dataprep.api.preparation.PreparationDetails;
 import org.talend.dataprep.exception.json.JsonErrorCodeDescription;
 import org.talend.dataprep.metrics.Timed;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @Api(value = "preparations", basePath = "/preparations", description = "Operations on preparations")
@@ -68,7 +69,7 @@ public class PreparationController {
     @RequestMapping(value = "/preparations", method = GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "List all preparations id", notes = "Returns the list of preparations ids the current user is allowed to see. Creation date is always displayed in UTC time zone. See 'preparations/all' to get all details at once.")
     @Timed
-    public List<String> list(
+    public Stream<String> list(
             @ApiParam(value = "Sort key (by name or date).") @RequestParam(defaultValue = "MODIF", required = false) String sort,
             @ApiParam(value = "Order for sort key (desc or asc).") @RequestParam(defaultValue = "DESC", required = false) String order) {
         return preparationService.list(sort, order);
@@ -84,7 +85,7 @@ public class PreparationController {
     @RequestMapping(value = "/preparations/details", method = GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "List all preparations", notes = "Returns the list of preparations details the current user is allowed to see. Creation date is always displayed in UTC time zone. This operation return all details on the preparations.")
     @Timed
-    public Collection<PreparationDetails> listAll(
+    public Stream<PreparationDetails> listAll(
             @ApiParam(value = "Sort key (by name or date).") @RequestParam(defaultValue = "MODIF", required = false) String sort,
             @ApiParam(value = "Order for sort key (desc or asc).") @RequestParam(defaultValue = "DESC", required = false) String order) {
         return preparationService.listAll(sort, order);
@@ -114,7 +115,7 @@ public class PreparationController {
     @RequestMapping(value = "/preparations/search", method = GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Search for preparations details", notes = "Returns the list of preparations details that match the search criteria.")
     @Timed
-    public Iterable<PreparationDetails> searchPreparations(
+    public Stream<PreparationDetails> searchPreparations(
             @RequestParam(required = false) @ApiParam("dataSetId") String dataSetId,
             @RequestParam(required = false) @ApiParam(value = "path of the folderId where to look for preparations") String folderId,
             @RequestParam(required = false) @ApiParam("name") String name,

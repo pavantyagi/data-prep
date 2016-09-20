@@ -13,6 +13,8 @@
 
 package org.talend.dataprep.command;
 
+import static org.apache.http.HttpHeaders.AUTHORIZATION;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -21,11 +23,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.HystrixCommandGroupKey;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
@@ -48,7 +45,11 @@ import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.CommonErrorCodes;
 import org.talend.dataprep.security.Security;
 
-import static org.apache.http.HttpHeaders.AUTHORIZATION;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandGroupKey;
 
 /**
  * Base Hystrix command request for all DataPrep commands.
@@ -109,6 +110,7 @@ public class GenericCommand<T> extends HystrixCommand<T> {
 
     /** Default onError behaviour. */
     private Function<Exception, RuntimeException> onError = Defaults.passthrough();
+    private HttpStatus status;
 
     /**
      * Protected constructor.
@@ -165,7 +167,7 @@ public class GenericCommand<T> extends HystrixCommand<T> {
         }
         commandResponseHeaders = response.getAllHeaders();
 
-        final HttpStatus status = HttpStatus.valueOf(response.getStatusLine().getStatusCode());
+        status = HttpStatus.valueOf(response.getStatusLine().getStatusCode());
 
         // do we have a behavior for this status code (even an error) ?
         // if yes use it
@@ -193,6 +195,13 @@ public class GenericCommand<T> extends HystrixCommand<T> {
      */
     public Header[] getCommandResponseHeaders() {
         return commandResponseHeaders;
+    }
+
+    /**
+     * @return The HTTP status of the executed request.
+     */
+    public HttpStatus getStatus() {
+        return status;
     }
 
     /**

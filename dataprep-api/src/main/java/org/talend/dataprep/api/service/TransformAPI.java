@@ -21,6 +21,7 @@ import java.io.InputStream;
 
 import javax.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -73,7 +74,7 @@ public class TransformAPI extends APIService {
     @RequestMapping(value = "/api/transform/suggest/column", method = RequestMethod.POST, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get suggested actions for a data set column.", notes = "Returns the suggested actions for the given column in decreasing order of likeness.")
     @Timed
-    public StreamingResponseBody suggestColumnActions(@ApiParam(value = "Column Metadata content as JSON") InputStream body) {
+    public ResponseEntity<StreamingResponseBody> suggestColumnActions(@ApiParam(value = "Column Metadata content as JSON") InputStream body) {
         // Asks transformation service for suggested actions for column type and domain
         GenericCommand<InputStream> getSuggestedActions = getCommand(SuggestColumnActions.class, body);
         return CommandHelper.toStreaming(getSuggestedActions);
@@ -97,7 +98,7 @@ public class TransformAPI extends APIService {
     @RequestMapping(value = "/api/transform/suggest/{action}/params", method = GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get the transformation dynamic parameters", notes = "Returns the transformation parameters.")
     @Timed
-    public StreamingResponseBody suggestActionParams(
+    public ResponseEntity<StreamingResponseBody> suggestActionParams(
             @ApiParam(value = "Transformation name.") @PathVariable("action") final String action,
             @ApiParam(value = "Suggested dynamic transformation input (preparation id or dataset id") @Valid final DynamicParamsInput dynamicParamsInput) {
         // get preparation/dataset content

@@ -13,7 +13,6 @@
 
 package org.talend.dataprep.transformation.service;
 
-import static java.util.stream.Collectors.toList;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.talend.daikon.exception.ExceptionContext.build;
@@ -422,8 +421,8 @@ public class TransformationService extends BaseTransformationService {
     @RequestMapping(value = "/transform/diff/metadata", method = POST, produces = APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Given a list of requested preview, it applies the diff to each one. A diff is between 2 sets of actions and return the info like created columns ids", notes = "This operation returns the diff metadata", consumes = MediaType.APPLICATION_JSON_VALUE)
     @VolumeMetered
-    public List<StepDiff> getCreatedColumns(@ApiParam(name = "body", value = "Preview parameters list in json.") @RequestBody final List<PreviewParameters> previewParameters) {
-        return previewParameters.stream().map(this::getCreatedColumns).collect(toList());
+    public Stream<StepDiff> getCreatedColumns(@ApiParam(name = "body", value = "Preview parameters list in json.") @RequestBody final List<PreviewParameters> previewParameters) {
+        return previewParameters.stream().map(this::getCreatedColumns);
     }
 
     @RequestMapping(value = "/preparation/{preparationId}/cache", method = DELETE)
@@ -549,11 +548,10 @@ public class TransformationService extends BaseTransformationService {
     @RequestMapping(value = "/actions/column", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Return all actions for a column (regardless of column metadata)", notes = "This operation returns an array of actions.")
     @ResponseBody
-    public List<ActionDefinition> columnActions(@RequestBody(required = false) ColumnMetadata column) {
+    public Stream<ActionDefinition> columnActions(@RequestBody(required = false) ColumnMetadata column) {
         return actionRegistry.findAll() //
                 .filter(action -> !"TEST".equals(action.getCategory()) && action.acceptScope(COLUMN)) //
-                .map(am -> column != null ? am.adapt(column) : am) //
-                .collect(toList());
+                .map(am -> column != null ? am.adapt(column) : am);
     }
 
     /**
@@ -567,25 +565,19 @@ public class TransformationService extends BaseTransformationService {
     @RequestMapping(value = "/suggest/column", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Suggest actions for a given column metadata", notes = "This operation returns an array of suggested actions in decreasing order of importance.")
     @ResponseBody
-    public List<ActionDefinition> suggest(@RequestBody(required = false) ColumnMetadata column, //
+    public Stream<ActionDefinition> suggest(@RequestBody(required = false) ColumnMetadata column, //
                                         @ApiParam(value = "How many actions should be suggested at most", defaultValue = "5") @RequestParam(value = "limit", defaultValue = "5", required = false) int limit) {
         if (column == null) {
-            return Collections.emptyList();
+            return Stream.empty();
         }
 
         // look for all actions applicable to the column type
-        final List<ActionDefinition> actions;
-        try (Stream<ActionDefinition> stream = actionRegistry.findAll()) {
-            actions = stream.filter(am -> am.acceptField(column)).collect(toList());
-        }
-        final List<Suggestion> suggestions = suggestionEngine.score(actions, column);
-        return suggestions.stream() //
-                .filter(s -> s.getScore() > 0) // Keep only strictly positive score (negative and 0 indicates not
-                // applicable)
+        final Stream<Suggestion> suggestions = suggestionEngine.score(actionRegistry.findAll().parallel().filter(am -> am.acceptField(column)), column);
+        return suggestions //
+                .filter(s -> s.getScore() > 0) // Keep only strictly positive score (negative and 0 indicates not applicable)
                 .limit(limit) //
                 .map(Suggestion::getAction) // Get the action for positive suggestions
-                .map(am -> am.adapt(column)) // Adapt default values (e.g. column name)
-                .collect(toList());
+                .map(am -> am.adapt(column)); // Adapt default values (e.g. column name)
     }
 
     /**
@@ -596,13 +588,10 @@ public class TransformationService extends BaseTransformationService {
     @RequestMapping(value = "/actions/line", method = GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Return all actions on lines", notes = "This operation returns an array of actions.")
     @ResponseBody
-    public List<ActionDefinition> lineActions() {
-        try (Stream<ActionDefinition> stream = actionRegistry.findAll()) {
-            return stream //
-                    .filter(action -> action.acceptScope(LINE)) //
-                    .map(action -> action.adapt(LINE)) //
-                    .collect(toList());
-        }
+    public Stream<ActionDefinition> lineActions() {
+        return actionRegistry.findAll() //
+                .filter(action -> action.acceptScope(LINE)) //
+                .map(action -> action.adapt(LINE));
     }
 
     /**
@@ -641,10 +630,9 @@ public class TransformationService extends BaseTransformationService {
     @ApiOperation(value = "Get the available format types")
     @Timed
     @PublicAPI
-    public List<ExportFormat> exportTypes() {
-        return formatRegistrationService.getExternalFormats().stream() //
-                .sorted((f1, f2) -> f1.getOrder() - f2.getOrder()) // Enforce strict order.
-                .collect(toList());
+    public Stream<ExportFormat> exportTypes() {
+        return formatRegistrationService.getExternalFormats() //
+                .sorted((f1, f2) -> f1.getOrder() - f2.getOrder()); // Enforce strict order.
     }
 
 }

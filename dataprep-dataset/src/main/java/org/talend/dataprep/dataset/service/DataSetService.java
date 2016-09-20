@@ -235,7 +235,7 @@ public class DataSetService extends BaseDataSetService {
     @RequestMapping(value = "/datasets", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "List all data sets and filters on certified, or favorite or a limited number when asked", notes = "Returns the list of data sets (and filters) the current user is allowed to see. Creation date is a Epoch time value (in UTC time zone).")
     @Timed
-    public Callable<List<DataSetMetadata>> list(
+    public Callable<Stream<DataSetMetadata>> list(
             @ApiParam(value = "Sort key (by name, creation or modification date)") @RequestParam(defaultValue = "DATE") String sort,
             @ApiParam(value = "Order for sort key (desc or asc or modif)") @RequestParam(defaultValue = "DESC") String order,
             @ApiParam(value = "Filter on name containing the specified name") @RequestParam(defaultValue = "") String name,
@@ -266,17 +266,14 @@ public class DataSetService extends BaseDataSetService {
             LOG.debug("TQL Filter in use: {}", tqlFilter);
 
             // Get all data sets according to filter
-            try (Stream<DataSetMetadata> stream = dataSetMetadataRepository.list(tqlFilter)) {
-                final Comparator<DataSetMetadata> comparator = getDataSetMetadataComparator(sort, order);
-                return stream.sorted(comparator) //
-                        .map(metadata -> {
+            try (Stream<DataSetMetadata> stream = dataSetMetadataRepository.list(tqlFilter, sort, order)) {
+                return stream.map(metadata -> {
                             if (userData != null) {
                                 metadata.setFavorite(userData.getFavoritesDatasets().contains(metadata.getId()));
                             }
                             return metadata;
                         }) //
-                        .limit(limit ? datasetListLimit : Long.MAX_VALUE) //
-                        .collect(Collectors.toList());
+                        .limit(limit ? datasetListLimit : Long.MAX_VALUE);
             }
         };
     }
@@ -1019,7 +1016,7 @@ public class DataSetService extends BaseDataSetService {
         } else {
             filter = "name contains '" + name + "'";
         }
-        final Set<DataSetMetadata> found = dataSetMetadataRepository.list(filter).collect(toSet());
+        final Set<DataSetMetadata> found = dataSetMetadataRepository.list(filter, null, null).collect(toSet());
 
         LOG.info("found {} dataset while searching {}", found.size(), name);
 
@@ -1030,8 +1027,8 @@ public class DataSetService extends BaseDataSetService {
     @ApiOperation(value = "list the supported encodings for dataset", notes = "This list can be used by user to change dataset encoding.")
     @Timed
     @PublicAPI
-    public List<String> listSupportedEncodings() {
-        return encodings.getSupportedCharsets().stream().map(Charset::displayName).collect(Collectors.toList());
+    public Stream<String> listSupportedEncodings() {
+        return encodings.getSupportedCharsets().stream().map(Charset::displayName);
     }
 
     @RequestMapping(value = "/datasets/imports/{import}/parameters", method = GET, consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1071,8 +1068,8 @@ public class DataSetService extends BaseDataSetService {
     @ApiOperation(value = "list the supported encodings for dataset", notes = "This list can be used by user to change dataset encoding.")
     @Timed
     @PublicAPI
-    public List<Import> listSupportedImports() {
-        final List<Import> supportedImports = locationsService.getAvailableLocations().stream() //
+    public Stream<Import> listSupportedImports() {
+        return locationsService.getAvailableLocations().stream() //
                 .filter(l -> enabledImports.contains(l.getLocationType())) //
                 .filter(DataSetLocation::isEnabled) //
                 .map(l -> { //
@@ -1100,12 +1097,7 @@ public class DataSetService extends BaseDataSetService {
                     } else {
                         return compare;
                     }
-                }) //
-                .collect(Collectors.toList());
-
-        LOG.debug("found {} supported import type", supportedImports.size());
-
-        return supportedImports;
+                });
     }
 
 }

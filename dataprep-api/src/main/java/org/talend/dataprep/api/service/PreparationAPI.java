@@ -32,6 +32,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -76,24 +77,15 @@ public class PreparationAPI extends APIService {
     @RequestMapping(value = "/api/preparations", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get all preparations.", notes = "Returns the list of preparations the current user is allowed to see.")
     @Timed
-    public StreamingResponseBody listPreparations(
+    public ResponseEntity<StreamingResponseBody> listPreparations(
             @ApiParam(name = "format", value = "Format of the returned document (can be 'long' or 'short'). Defaults to 'long'.")
             @RequestParam(value = "format", defaultValue = "long") String format) {
-
         if (LOG.isDebugEnabled()) {
             LOG.debug("Listing preparations (pool: {} )...", getConnectionStats());
         }
-
         PreparationList.Format listFormat = PreparationList.Format.valueOf(format.toUpperCase());
-        HystrixCommand<InputStream> command;
-        try {
-            command = getCommand(PreparationList.class, listFormat);
-            return CommandHelper.toStreaming(command);
-        } finally {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Listed preparations (pool: {} )...", getConnectionStats());
-            }
-        }
+        GenericCommand<InputStream> command = getCommand(PreparationList.class, listFormat);
+        return CommandHelper.toStreaming(command);
     }
 
     /**
@@ -250,7 +242,7 @@ public class PreparationAPI extends APIService {
     @RequestMapping(value = "/api/preparations/{id}/details", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get a preparation by id and details.", notes = "Returns the preparation details.")
     @Timed
-    public StreamingResponseBody getPreparation(
+    public ResponseEntity<StreamingResponseBody> getPreparation(
             @PathVariable(value = "id") @ApiParam(name = "id", value = "Preparation id.") String preparationId) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieving preparation details (pool: {} )...", getConnectionStats());
