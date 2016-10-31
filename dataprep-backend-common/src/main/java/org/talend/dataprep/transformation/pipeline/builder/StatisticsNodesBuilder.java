@@ -193,15 +193,7 @@ public class StatisticsNodesBuilder {
      * Create a full analyzer
      */
     private Function<List<ColumnMetadata>, Analyzer<Analyzers.Result>> getFullAnalyzer() {
-        return c -> analyzerService.build(c, //
-                        AnalyzerService.Analysis.QUALITY, //
-                        AnalyzerService.Analysis.CARDINALITY, //
-                        AnalyzerService.Analysis.FREQUENCY, //
-                        AnalyzerService.Analysis.PATTERNS, //
-                        AnalyzerService.Analysis.LENGTH, //
-                        AnalyzerService.Analysis.QUANTILES, //
-                        AnalyzerService.Analysis.SUMMARY, //
-                        AnalyzerService.Analysis.HISTOGRAM);
+        return StatisticsNode.getDefaultAnalyzer(analyzerService);
     }
 
     private Node getTypeDetectionNode(final Predicate<ColumnMetadata> columnFilter) {

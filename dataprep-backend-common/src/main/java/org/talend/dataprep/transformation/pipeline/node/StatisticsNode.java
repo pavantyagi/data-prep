@@ -10,10 +10,14 @@ import org.talend.dataprep.api.dataset.ColumnMetadata;
 import org.talend.dataprep.api.dataset.RowMetadata;
 import org.talend.dataprep.api.dataset.row.DataSetRow;
 import org.talend.dataprep.api.dataset.statistics.StatisticsAdapter;
+import org.talend.dataprep.quality.AnalyzerService;
 import org.talend.dataprep.transformation.pipeline.Signal;
 import org.talend.dataquality.common.inference.Analyzer;
 import org.talend.dataquality.common.inference.Analyzers;
 
+/**
+ * This node performs statistical analysis.
+ */
 public class StatisticsNode extends ColumnFilteredNode {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatisticsNode.class);
@@ -28,6 +32,16 @@ public class StatisticsNode extends ColumnFilteredNode {
         super(filter);
         this.analyzer = analyzer;
         this.adapter = adapter;
+    }
+
+    /**
+     * Construct a statisticsNode performing default analysis.
+     * @param analyzerService the analyzer service to use
+     * @param filter the filter to apply on values of a column
+     * @param adapter the adapter used to retrieve statistical information
+     */
+    public StatisticsNode(AnalyzerService analyzerService, Predicate<ColumnMetadata> filter, StatisticsAdapter adapter){
+        this(getDefaultAnalyzer(analyzerService), filter, adapter);
     }
 
     @Override
@@ -52,5 +66,21 @@ public class StatisticsNode extends ColumnFilteredNode {
             }
         }
         super.signal(signal);
+    }
+
+    /**
+     * Creates a default analyzer with te specified analyzer service.
+     * @param analyzerService the provided analyzer service
+     */
+    public static Function<List<ColumnMetadata>, Analyzer<Analyzers.Result>> getDefaultAnalyzer(AnalyzerService analyzerService) {
+        return c -> analyzerService.build(c, //
+                AnalyzerService.Analysis.QUALITY, //
+                AnalyzerService.Analysis.CARDINALITY, //
+                AnalyzerService.Analysis.FREQUENCY, //
+                AnalyzerService.Analysis.PATTERNS, //
+                AnalyzerService.Analysis.LENGTH, //
+                AnalyzerService.Analysis.QUANTILES, //
+                AnalyzerService.Analysis.SUMMARY, //
+                AnalyzerService.Analysis.HISTOGRAM);
     }
 }
