@@ -13,9 +13,6 @@
 
 package org.talend.dataprep.api.dataset.statistics;
 
-import static java.util.Locale.ENGLISH;
-import static org.talend.dataprep.api.type.Type.*;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Iterator;
@@ -41,7 +38,8 @@ import org.talend.dataprep.api.type.Type;
 import org.talend.dataprep.api.type.TypeUtils;
 import org.talend.dataquality.common.inference.Analyzers;
 import org.talend.dataquality.common.inference.ValueQualityStatistics;
-import org.talend.dataquality.semantic.classifier.SemanticCategoryEnum;
+import org.talend.dataquality.semantic.api.CategoryRegistryManager;
+import org.talend.dataquality.semantic.model.DQCategory;
 import org.talend.dataquality.semantic.recognizer.CategoryFrequency;
 import org.talend.dataquality.semantic.statistics.SemanticType;
 import org.talend.dataquality.statistics.cardinality.CardinalityStatistics;
@@ -52,6 +50,9 @@ import org.talend.dataquality.statistics.numeric.summary.SummaryStatistics;
 import org.talend.dataquality.statistics.text.TextLengthStatistics;
 import org.talend.dataquality.statistics.type.DataTypeEnum;
 import org.talend.dataquality.statistics.type.DataTypeOccurences;
+
+import static java.util.Locale.ENGLISH;
+import static org.talend.dataprep.api.type.Type.*;
 
 /**
  * Statistics adapter. This is used to inject every statistics part in the columns metadata.
@@ -69,7 +70,7 @@ public class StatisticsAdapter {
 
     /**
      * Extract analysis result and inject them in columns metadata
-     * 
+     *
      * @param columns The columns metadata
      * @param results The analysis results
      * @see #adapt(List, List, Predicate) to filter out columns during extraction of results.
@@ -109,7 +110,7 @@ public class StatisticsAdapter {
 
     /**
      * Extracts remaining analysis result (other than data type) and inject them in the specified column metadata.
-     * 
+     *
      * @param currentColumn the specified column metadata
      * @param result the specified Analysis result
      */
@@ -174,14 +175,17 @@ public class StatisticsAdapter {
                 if (percentage > semanticThreshold) {
                     final CategoryFrequency key = entry.get().getKey();
                     final String categoryId = key.getCategoryId();
-                    try {
-                        final SemanticCategoryEnum category = SemanticCategoryEnum.valueOf(categoryId);
-                        column.setDomain(category.getId());
-                        column.setDomainLabel(category.getDisplayName());
-                        column.setDomainFrequency(percentage);
-                    } catch (IllegalArgumentException e) {
-                        LOGGER.error("Could not find {} in known categories.", categoryId, e);
+                    DQCategory categoryMetadataByName = CategoryRegistryManager.getInstance()
+                            .getCategoryMetadataByName(categoryId);
+                    if (categoryMetadataByName == null) {
+                        LOGGER.error("Could not find {} in known categories.", categoryId);
+                        column.setDomain(categoryId);
+                        column.setDomainLabel(categoryId);
+                    } else {
+                        column.setDomain(categoryMetadataByName.getName());
+                        column.setDomainLabel(categoryMetadataByName.getLabel());
                     }
+                    column.setDomainFrequency(percentage);
                 } else {
                     // Ensure the domain is cleared if percentage is lower than threshold (earlier analysis - e.g.
                     // on the first 20 lines - may be over threshold, but full scan may decide otherwise.

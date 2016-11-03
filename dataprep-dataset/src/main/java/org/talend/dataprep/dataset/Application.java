@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
 @Profile("standalone")
-@ComponentScan(basePackages = "org.talend.dataprep")
+@ComponentScan("org.talend.dataprep")
 public class Application {
 
     public static void main(String[] args) {

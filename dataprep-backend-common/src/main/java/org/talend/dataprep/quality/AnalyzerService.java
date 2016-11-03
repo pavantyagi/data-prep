@@ -17,7 +17,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
@@ -222,10 +221,8 @@ public class AnalyzerService implements DisposableBean {
         DataTypeEnum[] types = TypeUtils.convert(columns);
         // Semantic domains
         List<String> domainList = columns.stream() //
-                .map(c -> {
-                    final SemanticCategoryEnum category = SemanticCategoryEnum.getCategoryById(c.getDomain().toUpperCase());
-                    return category == null ? SemanticCategoryEnum.UNKNOWN.getId() : category.getId();
-                }) //
+                .map(ColumnMetadata::getDomain) //
+                .map(d -> StringUtils.isBlank(d) ? SemanticCategoryEnum.UNKNOWN.getId() : d) //
                 .collect(Collectors.toList());
         final String[] domains = domainList.toArray(new String[domainList.size()]);
 
