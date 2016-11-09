@@ -9,7 +9,8 @@
   ~
   ~  You should have received a copy of the agreement
   ~  along with this program; if not, write to Talend SA
-  ~  9 rue Pages 92150 Suresnes, France
+  ~  9 ru
+  e Pages 92150 Suresnes, Franceœ
   ~
   ~  ============================================================================
   -->
@@ -22,8 +23,8 @@
     </appenders>
     <loggers>
         <!-- interesting debug log for this unit test -->
-        <logger name="org.talend.dataprep" level="error"/>
-        <logger name="org.talend.dataquality" level="debug"/>
+        <logger name="org.talend.dataprep" level="info"/>
+        <logger name="org.talend.dataquality" level="info"/>
         <!--logger name="org.springframework.data.mongodb" level="trace"/-->
         <!--<logger name="org.talend.dataprep.api.dataset" level="trace"/>-->
         <logger name="com.fasterxml" level="trace"/>
