@@ -23,11 +23,14 @@ import static org.talend.dataprep.api.export.ExportParameters.SourceType.HEAD;
 import static org.talend.dataprep.cache.ContentCache.TimeToLive.PERMANENT;
 import static org.talend.dataprep.transformation.format.JsonFormat.JSON;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -296,28 +299,47 @@ public class TransformTests extends TransformationServiceBaseTests {
     @Test
     public void shouldGetColumnTypes() throws Exception {
 
-        final String fileName = "TDP-2951_10k.csv";
-        final String columnId = "0003";
+        final String[] fileNames = { "TDP-2951_1k.csv", "TDP-2951_10k.csv", "TDP-2951_30k.csv" };
+        final String[] columns = { "0000", "0001", "0002", "0003", "0004" };
 
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < fileNames.length; i++) {
+            for (int j = 0; j < columns.length; j++) {
+                result.add(computeSemanticCategoriesDetection(fileNames[i], columns[j]));
+            }
+        }
+
+        System.out.println(result);
+    }
+
+    private String computeSemanticCategoriesDetection(String fileName, String columnId) throws IOException {
         // given
-        final String dataSetId = createDataset(fileName, "getColTypes", "text/csv");
+        final String dataSetId = createDataset(fileName, "test_" + System.currentTimeMillis(), "text/csv");
         final String preparationId = createEmptyPreparationFromDataset(dataSetId, "get col types prep");
 
         // when
         long[] durations = new long[100];
         for (int i = 0; i < durations.length; i++) {
             final long start = System.currentTimeMillis();
-            System.out.println(i + "-->" + getColumnType(preparationId, columnId));
+            getColumnType(preparationId, columnId);
             final long end = System.currentTimeMillis();
             durations[i] = end - start;
             // contentCache.clear();
         }
-        final double average = Arrays.stream(durations).average().getAsDouble();
+
+        DateFormat formatter = new SimpleDateFormat("mm:ss:SSS");
+        final String average = formatter.format(new Date((long) Arrays.stream(durations).average().getAsDouble()));
+        final String min = formatter.format(new Date(Arrays.stream(durations).min().getAsLong()));
+        final String max = formatter.format(new Date(Arrays.stream(durations).max().getAsLong()));
 
         // then
-        DateFormat formatter = new SimpleDateFormat("mm:ss:SSS");
-        System.out.println("took : " + formatter.format(new Date((long) average)) + " for " + durations.length + " iterations");
+        String result = fileName + '/' + columnId + "\n";
+        result += "\t" + average + " (avg), " + min + " (min), " + max + " (max) for " + durations.length + " iterations";
+        result += "\n";
+
+        return result;
     }
+
 
     private String getColumnType(String preparationId, String columnId) {
         return when().get("/preparation/{preparationId}/column/{columnId}/types", preparationId, columnId).asString();
