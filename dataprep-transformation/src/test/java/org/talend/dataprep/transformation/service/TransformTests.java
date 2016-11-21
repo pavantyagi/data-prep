@@ -14,6 +14,7 @@
 package org.talend.dataprep.transformation.service;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
@@ -23,6 +24,10 @@ import static org.talend.dataprep.cache.ContentCache.TimeToLive.PERMANENT;
 import static org.talend.dataprep.transformation.format.JsonFormat.JSON;
 
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -286,6 +291,36 @@ public class TransformTests extends TransformationServiceBaseTests {
                 HEAD
         );
         assertFalse(contentCache.has(key));
+    }
+
+    @Test
+    public void shouldGetColumnTypes() throws Exception {
+
+        final String fileName = "TDP-2951_10k.csv";
+        final String columnId = "0003";
+
+        // given
+        final String dataSetId = createDataset(fileName, "getColTypes", "text/csv");
+        final String preparationId = createEmptyPreparationFromDataset(dataSetId, "get col types prep");
+
+        // when
+        long[] durations = new long[100];
+        for (int i = 0; i < durations.length; i++) {
+            final long start = System.currentTimeMillis();
+            System.out.println(i + "-->" + getColumnType(preparationId, columnId));
+            final long end = System.currentTimeMillis();
+            durations[i] = end - start;
+            // contentCache.clear();
+        }
+        final double average = Arrays.stream(durations).average().getAsDouble();
+
+        // then
+        DateFormat formatter = new SimpleDateFormat("mm:ss:SSS");
+        System.out.println("took : " + formatter.format(new Date((long) average)) + " for " + durations.length + " iterations");
+    }
+
+    private String getColumnType(String preparationId, String columnId) {
+        return when().get("/preparation/{preparationId}/column/{columnId}/types", preparationId, columnId).asString();
     }
 
 }

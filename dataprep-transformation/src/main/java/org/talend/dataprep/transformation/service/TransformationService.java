@@ -13,11 +13,15 @@
 
 package org.talend.dataprep.transformation.service;
 
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.talend.daikon.exception.ExceptionContext.build;
 import static org.talend.dataprep.api.export.ExportParameters.SourceType.HEAD;
+import static org.talend.dataprep.exception.error.PreparationErrorCodes.PREPARATION_DOES_NOT_EXIST;
+import static org.talend.dataprep.exception.error.TransformationErrorCodes.UNEXPECTED_EXCEPTION;
+import static org.talend.dataprep.quality.AnalyzerService.Analysis.SEMANTIC;
 import static org.talend.dataprep.transformation.actions.category.ScopeCategory.COLUMN;
 import static org.talend.dataprep.transformation.actions.category.ScopeCategory.LINE;
 import static org.talend.dataprep.transformation.format.JsonFormat.JSON;
@@ -33,6 +37,7 @@ import java.util.stream.Stream;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,14 +54,18 @@ import org.talend.dataprep.api.dataset.DataSet;
 import org.talend.dataprep.api.dataset.DataSetMetadata;
 import org.talend.dataprep.api.dataset.RowMetadata;
 import org.talend.dataprep.api.dataset.row.Flag;
+import org.talend.dataprep.api.dataset.statistics.SemanticDomain;
 import org.talend.dataprep.api.export.ExportParameters;
 import org.talend.dataprep.api.preparation.Action;
+import org.talend.dataprep.api.preparation.Preparation;
 import org.talend.dataprep.api.preparation.Step;
 import org.talend.dataprep.api.preparation.StepDiff;
 import org.talend.dataprep.cache.ContentCache;
 import org.talend.dataprep.cache.ContentCacheKey;
 import org.talend.dataprep.command.dataset.DataSetGet;
 import org.talend.dataprep.command.dataset.DataSetGetMetadata;
+import org.talend.dataprep.command.preparation.PreparationDetailsGet;
+import org.talend.dataprep.dataset.StatisticsAdapter;
 import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.CommonErrorCodes;
 import org.talend.dataprep.exception.error.TransformationErrorCodes;
@@ -64,6 +73,7 @@ import org.talend.dataprep.exception.json.JsonErrorCodeDescription;
 import org.talend.dataprep.format.export.ExportFormat;
 import org.talend.dataprep.metrics.Timed;
 import org.talend.dataprep.metrics.VolumeMetered;
+import org.talend.dataprep.quality.AnalyzerService;
 import org.talend.dataprep.security.PublicAPI;
 import org.talend.dataprep.security.SecurityProxy;
 import org.talend.dataprep.transformation.aggregation.AggregationService;
@@ -82,6 +92,8 @@ import org.talend.dataprep.transformation.api.transformer.suggestion.SuggestionE
 import org.talend.dataprep.transformation.cache.CacheKeyGenerator;
 import org.talend.dataprep.transformation.cache.TransformationMetadataCacheKey;
 import org.talend.dataprep.transformation.preview.api.PreviewParameters;
+import org.talend.dataquality.common.inference.Analyzer;
+import org.talend.dataquality.common.inference.Analyzers;
 
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -154,6 +166,9 @@ public class TransformationService extends BaseTransformationService {
      */
     @Resource(name = "rootStep")
     private Step rootStep;
+
+    @Autowired
+    private AnalyzerService analyzerService;
 
     @RequestMapping(value = "/apply", method = POST, consumes = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Run the transformation given the provided export parameters", notes = "This operation transforms the dataset or preparation using parameters in export parameters.")
@@ -646,4 +661,83 @@ public class TransformationService extends BaseTransformationService {
                 .collect(toList());
     }
 
+    @RequestMapping(value = "/preparation/{preparationId}/column/{columnId}/types", method = GET, consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "list the types of the wanted column", notes = "This list can be used by user to change the column type.")
+    @Timed
+    @PublicAPI
+    public List<SemanticDomain> getColumnSemanticCategories(
+            @ApiParam(value = "The preparation id") @PathVariable String preparationId,
+            @ApiParam(value = "The column id") @PathVariable String columnId,
+            @ApiParam(value = "The preparation version") @RequestParam(defaultValue = "head") String stepId) {
+
+        LOG.debug("listing semantic categories for preparation #{} column #{}@{}", preparationId, columnId, stepId);
+
+        final Preparation preparation;
+        try {
+            final PreparationDetailsGet details = applicationContext.getBean(PreparationDetailsGet.class, preparationId);
+            preparation = mapper.readerFor(Preparation.class).readValue(details.execute());
+        } catch (IOException e) {
+            throw new TDPException(PREPARATION_DOES_NOT_EXIST, e, build().put("id", preparationId));
+        }
+
+        final String version = StringUtils.equals("head", stepId) ? preparation.getSteps().get(preparation.getSteps().size() - 1)
+                : stepId;
+
+        final ContentCacheKey metadataKey = cacheKeyGenerator //
+                .metadataBuilder() //
+                .preparationId(preparationId) //
+                .stepId(version) //
+                .sourceType(HEAD) //
+                .build();
+
+        final ContentCacheKey contentKey = cacheKeyGenerator //
+                .contentBuilder() //
+                .datasetId(preparation.getDataSetId()) //
+                .preparationId(preparationId) //
+                .stepId(version) //
+                .format(JSON) //
+                .sourceType(HEAD) //
+                .build();
+
+        // if the preparation is not cached, let's compute it to have some cache
+        if (!contentCache.has(metadataKey) || !contentCache.has(contentKey)) {
+
+            final ExportParameters exportParameters = new ExportParameters();
+            exportParameters.setPreparationId(preparationId);
+            exportParameters.setExportType("JSON");
+            exportParameters.setStepId(stepId);
+            exportParameters.setDatasetId(preparation.getDataSetId());
+
+            final StreamingResponseBody streamingResponseBody = executeSampleExportStrategy(exportParameters);
+            try {
+                // the result is not important here as it will be cached !
+                streamingResponseBody.writeTo(new NullOutputStream());
+            } catch (IOException e) {
+                throw new TDPException(UNEXPECTED_EXCEPTION, e);
+            }
+        }
+
+        try {
+            final DataSetMetadata metadata = mapper.readerFor(DataSetMetadata.class).readValue(contentCache.get(metadataKey));
+            final ColumnMetadata columnMetadata = metadata.getRowMetadata().getById(columnId);
+            final Analyzer<Analyzers.Result> analyzer = analyzerService.build(columnMetadata, SEMANTIC);
+            analyzer.init();
+
+            try (final JsonParser parser = mapper.getFactory().createParser(contentCache.get(contentKey))) {
+                final DataSet dataSet = mapper.readerFor(DataSet.class).readValue(parser);
+                dataSet.getRecords() //
+                        .map(r -> r.get(columnId)) //
+                        .forEach(analyzer::analyze);
+                analyzer.end();
+            }
+
+            final List<Analyzers.Result> analyzerResult = analyzer.getResult();
+            final StatisticsAdapter statisticsAdapter = new StatisticsAdapter(40);
+            statisticsAdapter.adapt(singletonList(columnMetadata), analyzerResult);
+            return columnMetadata.getSemanticDomains();
+
+        } catch (IOException e) {
+            throw new TDPException(UNEXPECTED_EXCEPTION, e);
+        }
+    }
 }
