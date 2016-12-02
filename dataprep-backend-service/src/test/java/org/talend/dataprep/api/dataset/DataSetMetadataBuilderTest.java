@@ -142,11 +142,6 @@ public class DataSetMetadataBuilderTest extends ServiceBaseTests {
     }
 
     @Test
-    public void testIsFavorite() throws Exception {
-        assertEquals(true, builder.metadata().id("1234").isFavorite(true).build().isFavorite());
-    }
-
-    @Test
     public void testLocation() throws Exception {
         final DataSetMetadata metadata = builder.metadata().id("1234").location(new LocalStoreLocation()).build();
         assertEquals(LocalStoreLocation.class, metadata.getLocation().getClass());
@@ -238,7 +233,6 @@ public class DataSetMetadataBuilderTest extends ServiceBaseTests {
 
         final DataSetMetadata metadata = new DataSetMetadata("18ba64c154d5", "Avengers stats", "Stan Lee",
                 System.currentTimeMillis(), System.currentTimeMillis(), rowMetadata, "1.0");
-        metadata.setFavorite(true);
         metadata.setLocation(new LocalStoreLocation());
         metadata.getGovernance().setCertificationStep(CERTIFIED);
         metadata.setSheetName("Sheet 1");
@@ -261,7 +255,6 @@ public class DataSetMetadataBuilderTest extends ServiceBaseTests {
         assertThat(copy.getAppVersion(), equalTo(original.getAppVersion()));
         assertThat(copy.getAuthor(), equalTo(original.getAuthor()));
         assertThat(copy.getCreationDate(), equalTo(original.getCreationDate()));
-        assertThat(copy.isFavorite(), equalTo(original.isFavorite()));
         assertThat(copy.getLocation(), equalTo(original.getLocation()));
         assertThat(copy.getLastModificationDate(), equalTo(original.getLastModificationDate()));
     }

@@ -177,7 +177,7 @@ public class TransformationServiceTests extends TransformationServiceBaseTests {
         applyActionFromFile(prepId, "uppercase_action.json");
 
         final Preparation preparation = getPreparation(prepId);
-        final String headId = preparation.getSteps().get(preparation.getSteps().size() - 1);
+        final String headId = preparation.getHeadId();
 
         final TransformationCacheKey key = cacheKeyGenerator.generateContentKey(
                 dsId,

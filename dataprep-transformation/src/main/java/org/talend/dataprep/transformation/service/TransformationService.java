@@ -50,7 +50,6 @@ import org.talend.dataprep.api.dataset.DataSetMetadata;
 import org.talend.dataprep.api.dataset.RowMetadata;
 import org.talend.dataprep.api.dataset.row.Flag;
 import org.talend.dataprep.api.export.ExportParameters;
-import org.talend.dataprep.api.preparation.Action;
 import org.talend.dataprep.api.preparation.Step;
 import org.talend.dataprep.api.preparation.StepDiff;
 import org.talend.dataprep.cache.ContentCache;
@@ -67,6 +66,7 @@ import org.talend.dataprep.metrics.VolumeMetered;
 import org.talend.dataprep.quality.AnalyzerService;
 import org.talend.dataprep.security.PublicAPI;
 import org.talend.dataprep.security.SecurityProxy;
+import org.talend.dataprep.transformation.actions.common.RunnableAction;
 import org.talend.dataprep.transformation.aggregation.AggregationService;
 import org.talend.dataprep.transformation.aggregation.api.AggregationParameters;
 import org.talend.dataprep.transformation.aggregation.api.AggregationResult;
@@ -485,9 +485,9 @@ public class TransformationService extends BaseTransformationService {
     }
 
     private void applyActionsOnMetadata(TransformationContext context, RowMetadata metadata, String actionsAsJson) {
-        List<Action> actions = actionParser.parse(actionsAsJson);
+        List<RunnableAction> actions = actionParser.parse(actionsAsJson);
         ActionContext contextWithMetadata = new ActionContext(context, metadata);
-        for (Action action : actions) {
+        for (RunnableAction action : actions) {
             action.getRowAction().compile(contextWithMetadata);
 
         }

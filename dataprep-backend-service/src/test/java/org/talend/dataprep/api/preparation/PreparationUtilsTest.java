@@ -58,8 +58,8 @@ public class PreparationUtilsTest extends ServiceBaseTests {
         final PreparationActions newContent2 = newContent1.append(actions);
 
         final String version = versionService.version().getVersionId();
-        final Step step1 = new Step(rootStep.id(), newContent1.id(), version);
-        final Step step2 = new Step(step1.id(), newContent2.id(), version);
+        final Step step1 = new Step(rootStep, newContent1, version);
+        final Step step2 = new Step(step1, newContent2, version);
 
         repository.add(newContent1);
         repository.add(newContent2);
@@ -91,8 +91,8 @@ public class PreparationUtilsTest extends ServiceBaseTests {
         final PreparationActions newContent2 = newContent1.append(actions);
 
         final String version = versionService.version().getVersionId();
-        final Step step1 = new Step(rootStep.id(), newContent1.id(), version);
-        final Step step2 = new Step(step1.id(), newContent2.id(), version);
+        final Step step1 = new Step(rootStep, newContent1, version);
+        final Step step2 = new Step(step1, newContent2, version);
 
         repository.add(newContent1);
         repository.add(newContent2);
@@ -124,8 +124,8 @@ public class PreparationUtilsTest extends ServiceBaseTests {
         final PreparationActions newContent2 = newContent1.append(actions);
 
         final String version = versionService.version().getVersionId();
-        final Step step1 = new Step(rootStep.id(), newContent1.id(), version);
-        final Step step2 = new Step(step1.id(), newContent2.id(), version);
+        final Step step1 = new Step(rootStep, newContent1, version);
+        final Step step2 = new Step(step1, newContent2, version);
 
         repository.add(newContent1);
         repository.add(newContent2);
@@ -157,8 +157,8 @@ public class PreparationUtilsTest extends ServiceBaseTests {
         final PreparationActions newContent2 = newContent1.append(actions);
 
         final String version = versionService.version().getVersionId();
-        final Step step1 = new Step(rootStep.id(), newContent1.id(), version);
-        final Step step2 = new Step(step1.id(), newContent2.id(), version);
+        final Step step1 = new Step(rootStep, newContent1, version);
+        final Step step2 = new Step(step1, newContent2, version);
 
         repository.add(newContent1);
         repository.add(newContent2);
@@ -206,7 +206,7 @@ public class PreparationUtilsTest extends ServiceBaseTests {
         final String version = versionService.version().getVersionId();
         final List<Action> actions = getSimpleAction("uppercase", "column_name", "lastname");
         final PreparationActions newContent = new PreparationActions(actions, version);
-        final Step step = new Step(rootStep.id(), newContent.id(), version);
+        final Step step = new Step(rootStep, newContent, version);
         final Preparation preparation = new Preparation("#15325878", "1234", step.id(), version);
 
         repository.add(newContent);

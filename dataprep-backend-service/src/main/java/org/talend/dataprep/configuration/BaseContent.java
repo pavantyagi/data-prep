@@ -16,8 +16,6 @@ package org.talend.dataprep.configuration;
 import java.io.IOException;
 import java.util.Collections;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +25,9 @@ import org.talend.dataprep.api.preparation.Step;
 import org.talend.dataprep.api.service.info.VersionService;
 import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.CommonErrorCodes;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Provide instance for root/initial content with current application version.
@@ -73,6 +74,6 @@ public class BaseContent {
      */
     @Bean(name = "rootStep")
     public Step getRootStep(PreparationActions rootContent) {
-        return new Step(null, rootContent.id(), versionService.version().getVersionId());
+        return new Step(null, rootContent, versionService.version().getVersionId());
     }
 }

@@ -1,5 +1,4 @@
 // ============================================================================
-//
 // Copyright (C) 2006-2016 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
@@ -23,7 +22,9 @@ import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.talend.dataprep.api.preparation.Step;
 import org.talend.dataprep.format.export.ExportFormat;
+import org.talend.dataprep.api.preparation.PreparationMessage;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
@@ -111,15 +112,15 @@ public class ExportAPITest extends ApiServiceTestBase {
         final String expectedExport = IOUtils
                 .toString(this.getClass().getResourceAsStream("export/expected_export_preparation_uppercase_firstname.csv"));
 
-        final List<String> steps = given().get("/api/preparations/{preparation}/details", preparationId).jsonPath()
-                .getList("steps");
-        final String firstActionStep = steps.get(1);
+        final PreparationMessage preparationMessage = mapper.readValue(given().get("/api/preparations/{preparation}/details", preparationId).asInputStream(), PreparationMessage.class);
+        final List<Step> steps = preparationMessage.getSteps();
+        final Step firstActionStep = steps.get(1);
 
         // when
         final String export = given() //
                 .formParam("exportType", "CSV") //
                 .formParam("preparationId", preparationId) //
-                .formParam("stepId", firstActionStep) //
+                .formParam("stepId", firstActionStep.id()) //
                 .when() //
                 .expect().statusCode(200).log().ifError() //
                 .get("/api/export") //

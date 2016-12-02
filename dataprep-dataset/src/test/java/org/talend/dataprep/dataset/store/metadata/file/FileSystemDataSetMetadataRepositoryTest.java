@@ -90,7 +90,6 @@ public class FileSystemDataSetMetadataRepositoryTest extends DataSetBaseTest {
         final DataSetMetadata actual = repository.get(expected.getId());
 
         // then
-        actual.setOwner(null); // for simplicity
         assertEquals(expected, actual);
     }
 
@@ -137,7 +136,6 @@ public class FileSystemDataSetMetadataRepositoryTest extends DataSetBaseTest {
 
         // then
         final DataSetMetadata actual = repository.get(id);
-        actual.setOwner(null); // for simplicity
         assertEquals(update, actual);
     }
 

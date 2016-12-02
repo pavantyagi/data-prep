@@ -349,7 +349,6 @@ public class DataSetMetadataBuilder {
         this.author = original.getAuthor();
         this.name = original.getName();
         this.createdDate = original.getCreationDate();
-        this.isFavorite = original.isFavorite();
         this.location = original.getLocation();
         this.lastModificationDate = original.getLastModificationDate();
         this.tag = original.getTag();
@@ -442,7 +441,6 @@ public class DataSetMetadataBuilder {
         }
         metadata.setSheetName(this.sheetName);
         metadata.setDraft(this.draft);
-        metadata.setFavorite(this.isFavorite);
         metadata.setLocation(this.location);
         if (this.certificationStep != null) {
             metadata.getGovernance().setCertificationStep(this.certificationStep);

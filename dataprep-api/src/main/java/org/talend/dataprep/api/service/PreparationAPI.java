@@ -41,6 +41,7 @@ import org.talend.dataprep.api.export.ExportParameters;
 import org.talend.dataprep.api.preparation.Action;
 import org.talend.dataprep.api.preparation.AppendStep;
 import org.talend.dataprep.api.preparation.Preparation;
+import org.talend.dataprep.api.preparation.Step;
 import org.talend.dataprep.api.service.api.PreviewAddParameters;
 import org.talend.dataprep.api.service.api.PreviewDiffParameters;
 import org.talend.dataprep.api.service.api.PreviewUpdateParameters;
@@ -332,8 +333,8 @@ public class PreparationAPI extends APIService {
         Preparation preparation = internalGetPreparation(preparationId);
 
         // get the preparation actions for up to the updated action
-        final int stepIndex = preparation.getSteps().indexOf(stepId);
-        final String parentStepId = preparation.getSteps().get(stepIndex - 1);
+        final int stepIndex = preparation.getSteps().stream().map(Step::getId).collect(toList()).indexOf(stepId);
+        final String parentStepId = preparation.getSteps().get(stepIndex - 1).id();
         final PreparationGetActions getActionsCommand = getCommand(PreparationGetActions.class, preparationId, parentStepId);
 
         // get the diff

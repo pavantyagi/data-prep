@@ -1,15 +1,14 @@
-//  ============================================================================
+// ============================================================================
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
 //
-//  Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+// This source code is available under agreement available at
+// https://github.com/Talend/data-prep/blob/master/LICENSE
 //
-//  This source code is available under agreement available at
-//  https://github.com/Talend/data-prep/blob/master/LICENSE
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
 //
-//  You should have received a copy of the agreement
-//  along with this program; if not, write to Talend SA
-//  9 rue Pages 92150 Suresnes, France
-//
-//  ============================================================================
+// ============================================================================
 
 package org.talend.dataprep.api.preparation;
 
@@ -19,12 +18,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import static java.util.Collections.unmodifiableList;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Models a list of actions for a step within a preparation.
@@ -35,7 +31,7 @@ public class PreparationActions extends Identifiable implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** The list of actions. */
-    private final List<Action> actions;
+    private List<Action> actions = Collections.emptyList();
 
     /** The app version. */
     @JsonProperty("app-version")
@@ -45,13 +41,9 @@ public class PreparationActions extends Identifiable implements Serializable {
      * Default empty constructor.
      */
     public PreparationActions() {
-        // needed for mongodb integration
-        this.actions = Collections.emptyList();
     }
 
     /**
-     * Default constructor.
-     *
      * @param appVersion the current application version for this PreparationActions.
      */
     public PreparationActions(String appVersion) {
@@ -64,10 +56,8 @@ public class PreparationActions extends Identifiable implements Serializable {
      * @param actions the actions for this preparation.
      * @param appVersion the current application version for this PreparationActions.
      */
-    @JsonCreator
-    public PreparationActions(@JsonProperty("actions") final List<Action> actions, //
-                              @JsonProperty("app-version") String appVersion) {
-        this.actions = unmodifiableList(actions);
+    public PreparationActions(final List<Action> actions, String appVersion) {
+        this.actions = Collections.unmodifiableList(actions);
         this.appVersion = appVersion;
     }
 
@@ -121,7 +111,7 @@ public class PreparationActions extends Identifiable implements Serializable {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("actions", actions).add("appVersion", appVersion).toString();
+        return "PreparationActions{" + "actions=" + actions + ", appVersion='" + appVersion + '\'' + "} " + super.toString();
     }
 
     @Override

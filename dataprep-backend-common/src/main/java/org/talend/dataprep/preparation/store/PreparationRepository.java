@@ -1,5 +1,4 @@
 // ============================================================================
-//
 // Copyright (C) 2006-2016 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
@@ -13,12 +12,12 @@
 
 package org.talend.dataprep.preparation.store;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.talend.dataprep.api.preparation.Identifiable;
 import org.talend.dataprep.api.preparation.PreparationActions;
-import org.talend.dataprep.transformation.actions.datablending.Lookup;
 
 /**
  * Base interface for preparation repositories (mongodb & in memory).
@@ -51,14 +50,14 @@ public interface PreparationRepository {
 
     /**
      * Save or update an identifiable object.
-     * 
+     *
      * @param object the identifiable to save.
      */
     void add(Identifiable object);
 
     /**
      * Returns the Identifiable that matches the id and the class or null if none match.
-     * 
+     *
      * @param id the wanted Identifiable id.
      * @param clazz the wanted Identifiable class.
      * @param <T> the type of Identifiable.
@@ -73,7 +72,7 @@ public interface PreparationRepository {
 
     /**
      * Removes the {@link Identifiable identifiable} from repository.
-     * 
+     *
      * @param object The {@link Identifiable identifiable} to be deleted (only {@link Identifiable#getId()} will be used for
      * delete).
      */
@@ -81,7 +80,7 @@ public interface PreparationRepository {
 
     /**
      * Find a preparation step action that use the dataset (ex: lookup)
-     * 
+     *
      * @param datasetId The dataset id.
      * @return A preparation action that use the dataset.
      */
@@ -89,14 +88,12 @@ public interface PreparationRepository {
         if (StringUtils.isEmpty(datasetId)) {
             return false;
         }
-        final String datasetParamName = Lookup.Parameters.LOOKUP_DS_ID.getKey();
+        final String datasetParamName = "lookup_ds_id";
         return list(PreparationActions.class) //
-                .filter(actions -> actions != null) // filter out null entries
-                .filter(actions -> actions.getActions().stream() //
+                .filter(Objects::nonNull) // filter out null entries
+                .anyMatch(actions -> actions.getActions().stream() //
                         .anyMatch(act -> datasetId.equals(act.getParameters().get(datasetParamName)))
-                ) // filter out non lookup on this dataset actions
-                .findFirst() //
-                .isPresent();
+                );
     }
 
 }

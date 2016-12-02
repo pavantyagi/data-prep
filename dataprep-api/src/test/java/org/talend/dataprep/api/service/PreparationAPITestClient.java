@@ -1,17 +1,22 @@
+// ============================================================================
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// https://github.com/Talend/data-prep/blob/master/LICENSE
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
 package org.talend.dataprep.api.service;
 
 import static com.jayway.restassured.RestAssured.given;
 
-import java.util.List;
-import java.util.Map;
-
-import org.talend.dataprep.api.dataset.RowMetadata;
-import org.talend.dataprep.api.preparation.Action;
 import org.talend.dataprep.api.preparation.AppendStep;
-import org.talend.dataprep.api.preparation.Preparation;
-import org.talend.dataprep.api.preparation.StepDiff;
+import org.talend.dataprep.api.preparation.PreparationMessage;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.parsing.Parser;
@@ -34,12 +39,12 @@ public class PreparationAPITestClient {
                 .post("/api/preparations/{id}/actions", prepId);
     }
 
-    public static PreparationDetailsResponse getPreparationDetails(String testPrepId) {
+    public static PreparationMessage getPreparationDetails(String testPrepId) {
         Response preparationDetails = given().contentType(ContentType.JSON)
                 .expect()
                 .statusCode(200)
                 .get("/api/preparations/{id}/details", testPrepId);
-        return preparationDetails.as(PreparationDetailsResponse.class);
+        return preparationDetails.as(PreparationMessage.class);
     }
 
     public static void changePreparationStepsOrder(String testPrepId, String rootStep, String secondStep) {
@@ -50,83 +55,4 @@ public class PreparationAPITestClient {
                         secondStep, rootStep);
     }
 
-    /**
-     * Class that represents the response of a call to /api/preparations/{id}/details produced by {@link PreparationAPI#getPreparation}.
-     */
-    public static class PreparationDetailsResponse {
-
-        public Preparation preparation;
-
-        public String id;
-
-        public String dataSetId;
-
-        public String author;
-
-        public String name;
-
-        public String creationDate;
-
-        public String lastModificationDate;
-
-        public String owner;
-
-        public RowMetadata rowMetadata;
-
-        public List<String> steps;
-
-        public List<StepDiff> diff;
-
-        public List<Action> actions;
-
-        public List<ActionMetadataDescriptor> metadata;
-
-        public boolean allowFullRun;
-
-        public boolean allowDistributedRun;
-
-        public static class ActionMetadataDescriptor {
-
-            public String name;
-
-            public String category;
-
-            public boolean dynamic;
-
-            public String description;
-
-            public String label;
-
-            public String docUrl;
-
-            public List<String> actionScope;
-
-            public List<ParameterDescriptor> parameters;
-
-            public static class ParameterDescriptor {
-
-                public String name;
-
-                public String label;
-
-                @JsonProperty("default")
-                public String defaultTruc;
-
-                public String type;
-
-                public String description;
-
-                public String defaultValue;
-
-                public boolean implicit;
-
-                public boolean canBeBlank;
-
-                public String placeHolder;
-
-                public Map<String, Object> configuration;
-
-            }
-        }
-    }
 }

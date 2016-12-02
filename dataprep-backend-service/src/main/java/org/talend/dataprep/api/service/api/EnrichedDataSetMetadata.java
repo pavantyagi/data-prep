@@ -48,12 +48,7 @@ public class EnrichedDataSetMetadata extends DataSetMetadata {
         this.setContent(source.getContent());
         this.setDraft(source.isDraft());
         this.setEncoding(source.getEncoding());
-        this.setFavorite(source.isFavorite());
         this.setLocation(source.getLocation());
-        this.setOwner(source.getOwner());
-        this.setRoles(source.getRoles());
-        this.setSharedByMe(source.isSharedByMe());
-        this.setSharedDataSet(source.isSharedDataSet());
         this.setSheetName(source.getSheetName());
         this.setTag(source.getTag());
         this.getGovernance().setCertificationStep(source.getGovernance().getCertificationStep());
@@ -107,7 +102,7 @@ public class EnrichedDataSetMetadata extends DataSetMetadata {
 
         /**
          * Constructor.
-         * 
+         *
          * @param source the preparation source.
          */
         public PreparationSummary(Preparation source) {
