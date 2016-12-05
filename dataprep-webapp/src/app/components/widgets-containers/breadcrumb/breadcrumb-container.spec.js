@@ -127,9 +127,6 @@ describe('Breadcrumb container', () => {
 
 			// when
 			const parentFolderButton = element.find('.breadcrumb > li').eq(0).find('button');
-			parentFolderButton.click((e) => {
-				e.preventDefault();
-			});
 			parentFolderButton[0].click();
 
 			// then
@@ -138,15 +135,12 @@ describe('Breadcrumb container', () => {
 			expect(SettingsActionsService.dispatch.calls.argsFor(0)[0].payload.id).toBe('abcd');
 		}));
 
-		it('should dispatch button click', inject((SettingsActionsService) => {
+		it('should dispatch dropdown item click', inject((SettingsActionsService) => {
 			// given
 			createElement(breadcrumb);
 
 			// when
 			const parentFolderButton = element.find('.breadcrumb .dropdown-menu > li > a').eq(0);
-			parentFolderButton.click((e) => {
-				e.preventDefault();
-			});
 			parentFolderButton[0].click();
 
 			// then
