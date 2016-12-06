@@ -71,7 +71,7 @@
                                             on-submit-hover-off="$ctrl.cancelPreview()"
                                             is-transformation-in-progress="recipeCtrl.updateStepInProgress"></transform-form>
 
-                            <talend-modal ng-if="$ctrl.hasDynamicParams(step)"
+                            <talend-modal ng-if="$ctrl.showModal[step.transformation.stepId]"
                                           fullscreen="false"
                                           state="$ctrl.showModal[step.transformation.stepId]"
                                           close-button="true">
