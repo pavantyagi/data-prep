@@ -15,6 +15,7 @@ describe('Recipe component', () => {
     let scope;
     let element;
     let stateMock;
+    const ctrl;
 
     const steps = [
         {
@@ -727,6 +728,7 @@ describe('Recipe component', () => {
         element = angular.element('<recipe></recipe>');
         $compile(element)(scope);
         scope.$digest();
+        ctrl = element.controller('recipe');
     }));
 
     afterEach(() => {
@@ -792,13 +794,14 @@ describe('Recipe component', () => {
         expect(element.find('.recipe ul sc-accordion-item content').eq(0).find('.transformation-form').length).toBe(1);
     });
 
-    it('should render recipe cluster params', () => {
+    it('should render recipe cluster Modal', () => {
         // given
         const body = angular.element('body');
 
         // when
         stateMock.playground.recipe.current.steps = [steps[3]];
         stateMock.playground.recipe.current.reorderedSteps = stateMock.playground.recipe.current.steps;
+        ctrl.showModal[steps[3].transformation.stepId] = true;
         scope.$digest();
 
         // then
