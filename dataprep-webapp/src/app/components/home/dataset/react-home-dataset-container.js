@@ -14,6 +14,7 @@ const HomeDatasetContainer = {
 	template: `
 		<div class="home-content">
 			<inventory-list
+				id="'datasets-list'"
 				display-mode="$ctrl.state.inventory.datasetsDisplayMode"
 				items="$ctrl.state.inventory.datasets"
 				sort-by="$ctrl.state.inventory.datasetsSort.id"
