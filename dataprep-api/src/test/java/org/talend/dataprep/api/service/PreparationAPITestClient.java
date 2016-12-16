@@ -15,12 +15,10 @@ package org.talend.dataprep.api.service;
 import static com.jayway.restassured.RestAssured.given;
 
 import org.talend.dataprep.api.preparation.AppendStep;
-import org.talend.dataprep.api.preparation.PreparationMessage;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.parsing.Parser;
-import com.jayway.restassured.response.Response;
 
 /**
  * Java client for testings.
@@ -37,14 +35,6 @@ public class PreparationAPITestClient {
                 .expect()
                 .statusCode(200)
                 .post("/api/preparations/{id}/actions", prepId);
-    }
-
-    public static PreparationMessage getPreparationDetails(String testPrepId) {
-        Response preparationDetails = given().contentType(ContentType.JSON)
-                .expect()
-                .statusCode(200)
-                .get("/api/preparations/{id}/details", testPrepId);
-        return preparationDetails.as(PreparationMessage.class);
     }
 
     public static void changePreparationStepsOrder(String testPrepId, String rootStep, String secondStep) {

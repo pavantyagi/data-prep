@@ -24,13 +24,9 @@ import javax.annotation.Resource;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.talend.dataprep.ServiceBaseTests;
-import org.talend.dataprep.api.preparation.Action;
-import org.talend.dataprep.api.preparation.Preparation;
-import org.talend.dataprep.api.preparation.PreparationActions;
-import org.talend.dataprep.api.preparation.Step;
+import org.talend.dataprep.api.preparation.*;
 import org.talend.dataprep.api.service.info.VersionService;
 import org.talend.dataprep.conversions.BeanConversionService;
-import org.talend.dataprep.api.preparation.PreparationMessage;
 import org.talend.dataprep.preparation.store.PreparationRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -131,8 +127,7 @@ public class PreparationSerializationTest extends ServiceBaseTests {
         preparation.setCreationDate(0L);
         final StringWriter output = new StringWriter();
         mapper.writer().writeValue(output, conversionService.convert(preparation, PreparationMessage.class));
-        final InputStream expected = PreparationSerializationTest.class
-                .getResourceAsStream("preparationDetailsWithStepsAndActions.json");
+        final InputStream expected = this.getClass().getResourceAsStream("preparationDetailsWithStepsAndActions.json");
         assertThat(output.toString(), sameJSONAsFile(expected));
     }
 }

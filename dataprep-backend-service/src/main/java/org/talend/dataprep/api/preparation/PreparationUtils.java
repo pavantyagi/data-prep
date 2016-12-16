@@ -61,7 +61,9 @@ public class PreparationUtils {
             writer.flush();
             PreparationActions blob = repository.get(step.getContent().id(), PreparationActions.class);
             prettyPrint(blob, out);
-            prettyPrint(repository, step.getParent().id(), out);
+            if (step.getParent() != null) {
+                prettyPrint(repository, step.getParent().id(), out);
+            }
         } catch (IOException e) {
             throw new TalendRuntimeException(BaseErrorCodes.UNEXPECTED_EXCEPTION, e);
         }

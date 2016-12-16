@@ -476,6 +476,7 @@ public class PreparationService {
             preparationRepository.remove(previousPreparation);
         }
         updated.setAppVersion(versionService.version().getVersionId());
+        updated.setLastModificationDate(System.currentTimeMillis());
         preparationRepository.add(updated);
 
         log.info("Preparation {} updated -> {}", id, updated);
