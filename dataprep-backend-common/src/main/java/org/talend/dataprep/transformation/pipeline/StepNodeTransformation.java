@@ -136,7 +136,7 @@ class StepNodeTransformation extends Visitor {
                 final NodeCopy copy = new NodeCopy();
                 node.accept(copy);
 
-                final StepNode stepNode = new StepNode(steps.next(), copy.getCopy());
+                final StepNode stepNode = new StepNode(steps.next(), copy.getCopy(), copy.getLastNode());
                 ofNullable(previous).ifPresent(n -> n.setLink(new BasicLink(stepNode)));
                 builder.to(stepNode);
                 return this;
@@ -156,10 +156,13 @@ class StepNodeTransformation extends Visitor {
 
             private boolean hasEnded = false;
 
+            private Node lastNode;
+
             @Override
             public void visitAction(ActionNode actionNode) {
                 if (!hasEnded) {
-                    builder.to(actionNode.copyShallow());
+                    lastNode = actionNode.copyShallow();
+                    builder.to(lastNode);
                     hasEnded = true;
                 }
                 // No call to super -> interrupt copy.
@@ -194,6 +197,13 @@ class StepNodeTransformation extends Visitor {
              */
             public Node getCopy() {
                 return builder.build();
+            }
+
+            /**
+             * @return The last node of the pipeline copy.
+             */
+            public Node getLastNode() {
+                return lastNode;
             }
         }
 

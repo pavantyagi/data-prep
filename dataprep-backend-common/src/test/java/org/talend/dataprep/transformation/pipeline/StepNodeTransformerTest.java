@@ -13,17 +13,17 @@
 package org.talend.dataprep.transformation.pipeline;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 import org.talend.dataprep.api.preparation.Step;
 import org.talend.dataprep.transformation.pipeline.builder.NodeBuilder;
 import org.talend.dataprep.transformation.pipeline.node.*;
-
-import java.util.Arrays;
 
 public class StepNodeTransformerTest {
 
@@ -47,9 +47,8 @@ public class StepNodeTransformerTest {
     @Test
     public void shouldCreateStepNode() throws Exception {
         // given
-        Node node = NodeBuilder.from(new CompileNode(null, null))
-                .to(new ActionNode(null, null))
-                .build();
+        Node node = NodeBuilder.from(new CompileNode(null, null)) //
+                .to(new ActionNode(null, null)).build();
 
         // when
         final Node processed = StepNodeTransformer.transform(node, Arrays.asList(ROOT, STEP));
@@ -81,12 +80,38 @@ public class StepNodeTransformerTest {
         assertThat(visitor.traversedClasses, hasItems(expectedClasses));
     }
 
+    @Test
+    public void shouldCreateStepNodesWhenSurrounded() throws Exception {
+        // given
+        Node node = NodeBuilder.from(new TestNode()) //
+                .to(new CompileNode(null, null)) //
+                .to(new ActionNode(null, null)) //
+                .to(new BasicNode()) //
+                .to(new CompileNode(null, null)) //
+                .to(new ActionNode(null, null)) //
+                .build();
+
+        // when
+        final Node processed = StepNodeTransformer.transform(node, Arrays.asList(ROOT, STEP, STEP));
+
+        // then
+        final AtomicInteger stepNodeCount = new AtomicInteger();
+        processed.accept(new Visitor() {
+
+            @Override
+            public void visitStepNode(StepNode stepNode) {
+                stepNodeCount.incrementAndGet();
+                super.visitStepNode(stepNode);
+            }
+        });
+        assertEquals(2, stepNodeCount.get());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailCreateStepNode() throws Exception {
         // given
-        Node node = NodeBuilder.from(new CompileNode(null, null))
-                .to(new ActionNode(null, null))
-                .build();
+        Node node = NodeBuilder.from(new CompileNode(null, null)) //
+                .to(new ActionNode(null, null)).build();
 
         // then
         StepNodeTransformer.transform(node, emptyList());
@@ -95,9 +120,8 @@ public class StepNodeTransformerTest {
     @Test
     public void shouldCreateStepNodeWithTooManySteps() throws Exception {
         // given
-        Node node = NodeBuilder.from(new CompileNode(null, null))
-                .to(new ActionNode(null, null))
-                .build();
+        Node node = NodeBuilder.from(new CompileNode(null, null)) //
+                .to(new ActionNode(null, null)).build();
 
         // when
         final Node processed = StepNodeTransformer.transform(node, Arrays.asList(ROOT, STEP, STEP));
@@ -108,6 +132,5 @@ public class StepNodeTransformerTest {
         processed.accept(visitor);
         assertThat(visitor.traversedClasses, hasItems(expectedClasses));
     }
-
 
 }

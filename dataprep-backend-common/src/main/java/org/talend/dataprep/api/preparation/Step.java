@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Step extends Identifiable implements Serializable {
 
-    private static final Step ROOT_STEP = new Step() {
+    public static final Step ROOT_STEP = new Step() {
 
         @Override
         public String id() {

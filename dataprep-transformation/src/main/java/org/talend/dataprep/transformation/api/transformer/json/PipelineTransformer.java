@@ -15,6 +15,12 @@ package org.talend.dataprep.transformation.api.transformer.json;
 import static org.talend.dataprep.cache.ContentCache.TimeToLive.DEFAULT;
 import static org.talend.dataprep.transformation.api.transformer.configuration.Configuration.Volume.SMALL;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +47,6 @@ import org.talend.dataprep.transformation.pipeline.model.WriterNode;
 import org.talend.dataprep.transformation.pipeline.node.StepNode;
 import org.talend.dataprep.transformation.service.PreparationUpdater;
 import org.talend.dataprep.transformation.service.TransformationRowMetadataUtils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Component
 public class PipelineTransformer implements Transformer {
@@ -90,11 +91,9 @@ public class PipelineTransformer implements Transformer {
                 configuration.getArguments());
         final ConfiguredCacheWriter metadataWriter = new ConfiguredCacheWriter(contentCache, DEFAULT);
         final TransformationMetadataCacheKey metadataKey = cacheKeyGenerator.generateMetadataKey(configuration.getPreparationId(),
-                configuration.stepId(),
-                configuration.getSourceType());
+                configuration.stepId(), configuration.getSourceType());
         final PreparationMessage preparation = configuration.getPreparation();
-        final Pipeline pipeline = Pipeline.Builder.builder()
-                .withAnalyzerService(analyzerService) //
+        final Pipeline pipeline = Pipeline.Builder.builder().withAnalyzerService(analyzerService) //
                 .withActionRegistry(actionRegistry) //
                 .withPreparation(preparation) //
                 .withActions(actionParser.parse(configuration.getActions())) //
@@ -116,6 +115,7 @@ public class PipelineTransformer implements Transformer {
 
         if (preparation != null) {
             List<Step> stepsToUpdate = new ArrayList<>();
+            stepsToUpdate.add(Step.ROOT_STEP);
             pipeline.accept(new Visitor() {
                 @Override
                 public void visitStepNode(StepNode stepNode) {

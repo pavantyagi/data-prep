@@ -17,8 +17,7 @@ import java.util.Optional;
 import org.talend.dataprep.api.dataset.RowMetadata;
 import org.talend.dataprep.api.dataset.row.DataSetRow;
 import org.talend.dataprep.api.preparation.Step;
-import org.talend.dataprep.transformation.pipeline.Node;
-import org.talend.dataprep.transformation.pipeline.Visitor;
+import org.talend.dataprep.transformation.pipeline.*;
 
 /**
  * <p>
@@ -37,9 +36,12 @@ public class StepNode extends BasicNode {
 
     private final Node entryNode;
 
-    public StepNode(Step step, Node entryNode) {
+    private final Node lastNode;
+
+    public StepNode(Step step, Node entryNode, Node lastNode) {
         this.step = step;
         this.entryNode = entryNode;
+        this.lastNode = lastNode;
     }
 
     public Step getStep() {
@@ -53,8 +55,12 @@ public class StepNode extends BasicNode {
         if (!stepMetadata.isPresent()) {
             step.setRowMetadata(metadata);
         }
+
+        if (lastNode.getLink() == null) {
+            final RuntimeLink stepLink = getLink().exec();
+            lastNode.setLink(new StepLink(stepLink));
+        }
         entryNode.exec().receive(row, rowMetadata);
-        super.receive(row, rowMetadata);
     }
 
     @Override
@@ -64,6 +70,40 @@ public class StepNode extends BasicNode {
 
     @Override
     public Node copyShallow() {
-        return new StepNode(step, entryNode);
+        return new StepNode(step, entryNode, lastNode);
+    }
+
+    private static class StepLink implements Link {
+
+        private final RuntimeLink stepLink;
+
+        private StepLink(RuntimeLink stepLink) {
+            this.stepLink = stepLink;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+        }
+
+        @Override
+        public RuntimeLink exec() {
+            return new RuntimeLink() {
+
+                @Override
+                public void emit(DataSetRow row, RowMetadata metadata) {
+                    stepLink.emit(row, metadata);
+                }
+
+                @Override
+                public void emit(DataSetRow[] rows, RowMetadata[] metadatas) {
+                    stepLink.emit(rows, metadatas);
+                }
+
+                @Override
+                public void signal(Signal signal) {
+                    stepLink.signal(signal);
+                }
+            };
+        }
     }
 }
