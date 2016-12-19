@@ -271,13 +271,13 @@ public class DataSetAPI extends APIService {
             LOG.debug("Listing datasets summary (pool: {})...", getConnectionStats());
         }
 
-        int numberOfDataSets;
+        Integer numberOfDataSets;
         GenericCommand<InputStream> listDataSets = getCommand(DataSetList.class, sort, order, name, certified, favorite, limit);
         try (InputStream input = listDataSets.execute();
              final JsonGenerator generator = mapper.getFactory().createGenerator(output)) {
             List<DataSetMetadata> datasets = mapper.readValue(input, new TypeReference<List<DataSetMetadata>>() {
             });
-            numberOfDataSets = datasets.size();
+            numberOfDataSets = LOG.isInfoEnabled() ? datasets.size() : null;
             generator.writeStartArray();
             for (DataSetMetadata dataSetMetadata : datasets) {
                 EnrichedDataSetMetadata enrichedDataSet = enrichDataSetMetadata(dataSetMetadata);
