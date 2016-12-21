@@ -485,6 +485,36 @@ public class PreparationService {
     }
 
     /**
+     * Update a preparation steps.
+     *
+     * @param preparationId the preparation id.
+     * @param steps the steps to update.
+     */
+    public void updatePreparationSteps(final String preparationId, final List<Step> steps) {
+
+        log.info("update preparation #{}'s steps", preparationId);
+
+        int updatedSteps = 0;
+        for (Step step : steps) {
+            final Step toUpdate = preparationRepository.get(step.id(), Step.class);
+            if (toUpdate == null) {
+                continue;
+            }
+            toUpdate.setRowMetadata(step.getRowMetadata());
+            toUpdate.setContent(step.getContent());
+            toUpdate.setDiff(step.getDiff());
+            toUpdate.setParent(step.getParent());
+
+            log.debug("{} updated", toUpdate);
+            preparationRepository.add(toUpdate);
+
+            updatedSteps++;
+        }
+
+        log.info("{} steps for preparation #{} were updated", updatedSteps, preparationId);
+    }
+
+    /**
      * Copy the steps from the another preparation to this one.
      * <p>
      * This is only allowed if this preparation has no steps.
@@ -1242,4 +1272,5 @@ public class PreparationService {
             replaceHistory(preparation, steps.get(lastUnchangedIndex), result);
         }
     }
+
 }

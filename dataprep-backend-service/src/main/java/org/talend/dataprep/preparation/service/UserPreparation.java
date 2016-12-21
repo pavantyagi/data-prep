@@ -15,7 +15,6 @@ package org.talend.dataprep.preparation.service;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.talend.dataprep.api.preparation.Preparation;
 import org.talend.dataprep.api.preparation.PreparationMessage;
 import org.talend.dataprep.api.share.Owner;
 import org.talend.dataprep.api.share.SharedResource;
@@ -80,4 +79,5 @@ public class UserPreparation extends PreparationMessage implements SharedResourc
     public String getOwnerId() {
         return getAuthor();
     }
+
 }

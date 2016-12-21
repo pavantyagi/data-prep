@@ -12,11 +12,15 @@
 
 package org.talend.dataprep.transformation.service;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import org.talend.dataprep.api.preparation.PreparationMessage;
-import org.talend.dataprep.api.service.command.preparation.PreparationUpdate;
+import org.talend.dataprep.api.preparation.Step;
+import org.talend.dataprep.command.preparation.UpdateStepRowMetadata;
 
 /**
  * This service provides operation to update a preparation in preparation service. This is useful when transformation
@@ -25,17 +29,23 @@ import org.talend.dataprep.api.service.command.preparation.PreparationUpdate;
 @Service
 public class PreparationUpdater {
 
+    /** This class' logger. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(PreparationUpdater.class);
+
     @Autowired
-    ApplicationContext context;
+    private ApplicationContext context;
 
     /**
-     * Updates a preparation in preparation service with provided argument.
+     * Update a preparation step's metadata.
      *
-     * @param preparation The new version of the preparation, the {@link PreparationMessage#id()} will be used to find the
-     * preparation to update.
+     * @param preparationId the preparation id to update the step from.
+     * @param steps the steps to update.
      */
-    public void update(PreparationMessage preparation) {
-        final PreparationUpdate update = context.getBean(PreparationUpdate.class, preparation.id(), preparation);
-        update.execute();
+    public void update(String preparationId, List<Step> steps) {
+
+        LOGGER.debug("updating steps for preparation #{} : \n\t{}", preparationId, steps);
+
+        context.getBean(UpdateStepRowMetadata.class, preparationId, steps).execute();
     }
+
 }

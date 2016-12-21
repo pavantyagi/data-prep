@@ -53,7 +53,7 @@ public interface Node extends Serializable {
             final StringBuilder builder = new StringBuilder();
             final PipelineConsoleDump visitor = new PipelineConsoleDump(builder);
             this.accept(visitor);
-            logger.debug(message, builder);
+            logger.debug(message, builder.toString());
         }
     }
 

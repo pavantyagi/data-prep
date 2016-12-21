@@ -32,7 +32,6 @@ import org.talend.dataprep.api.action.ActionDefinition;
 import org.talend.dataprep.api.dataset.DataSet;
 import org.talend.dataprep.api.dataset.RowMetadata;
 import org.talend.dataprep.api.dataset.row.DataSetRow;
-import org.talend.dataprep.api.preparation.Action;
 import org.talend.dataprep.api.preparation.PreparationMessage;
 import org.talend.dataprep.dataset.StatisticsAdapter;
 import org.talend.dataprep.quality.AnalyzerService;
@@ -308,18 +307,25 @@ public class Pipeline implements Node, RuntimeNode, Serializable {
             }
 
             // Build nodes for actions
-            final Node actionsNode = ActionNodesBuilder.builder().initialMetadata(rowMetadata).actions(runnableActions)
+            final Node actionsNode = ActionNodesBuilder.builder() //
+                    .initialMetadata(rowMetadata) //
+                    .actions(runnableActions) //
                     // statistics requests
-                    .needStatisticsBefore(!completeMetadata).needStatisticsAfter(needGlobalStatistics).allowSchemaAnalysis(allowMetadataChange) //
+                    .needStatisticsBefore(!completeMetadata) //
+                    .needStatisticsAfter(needGlobalStatistics) //
+                    .allowSchemaAnalysis(allowMetadataChange) //
                     // statistics dependencies/arguments
-                    .actionRegistry(actionRegistry).analyzerService(analyzerService).statisticsAdapter(adapter) //
+                    .actionRegistry(actionRegistry) //
+                    .analyzerService(analyzerService) //
+                    .statisticsAdapter(adapter) //
                     .build();
+
             if (preparation != null) {
                 LOG.debug("Applying step node transformations...");
-                actionsNode.logStatus(LOG, "Before transformation");
+                actionsNode.logStatus(LOG, "Before transformation\n{}");
                 final Node node = StepNodeTransformer.transform(actionsNode, preparation.getSteps());
                 current.to(node);
-                actionsNode.logStatus(LOG, "After transformation");
+                node.logStatus(LOG, "After transformation\n{}");
             } else {
                 current.to(actionsNode);
             }

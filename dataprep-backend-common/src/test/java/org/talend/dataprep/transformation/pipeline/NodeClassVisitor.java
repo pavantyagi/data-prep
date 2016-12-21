@@ -12,14 +12,15 @@
 
 package org.talend.dataprep.transformation.pipeline;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.talend.dataprep.transformation.pipeline.link.BasicLink;
 import org.talend.dataprep.transformation.pipeline.link.CloneLink;
 import org.talend.dataprep.transformation.pipeline.node.ActionNode;
 import org.talend.dataprep.transformation.pipeline.node.CompileNode;
 import org.talend.dataprep.transformation.pipeline.node.SourceNode;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.talend.dataprep.transformation.pipeline.node.StepNode;
 
 public class NodeClassVisitor extends Visitor {
 
@@ -65,5 +66,11 @@ public class NodeClassVisitor extends Visitor {
     public void visitCloneLink(CloneLink cloneLink) {
         traversedClasses.add(cloneLink.getClass());
         super.visitCloneLink(cloneLink);
+    }
+
+    @Override
+    public void visitStepNode(StepNode stepNode) {
+        traversedClasses.add(stepNode.getClass());
+        super.visitStepNode(stepNode);
     }
 }

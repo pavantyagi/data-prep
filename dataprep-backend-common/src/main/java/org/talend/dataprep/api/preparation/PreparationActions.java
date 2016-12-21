@@ -111,7 +111,7 @@ public class PreparationActions extends Identifiable implements Serializable {
 
     @Override
     public String toString() {
-        return "PreparationActions{" + "actions=" + actions + ", appVersion='" + appVersion + '\'' + "} " + super.toString();
+        return "PreparationActions{" + "actions=" + actions + ", appVersion='" + appVersion + '\'' + "}";
     }
 
     @Override

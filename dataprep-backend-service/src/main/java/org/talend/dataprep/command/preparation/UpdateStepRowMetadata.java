@@ -10,47 +10,56 @@
 //
 // ============================================================================
 
-package org.talend.dataprep.api.service.command.preparation;
+package org.talend.dataprep.command.preparation;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.talend.dataprep.command.Defaults.asString;
-import static org.talend.dataprep.exception.error.APIErrorCodes.UNABLE_TO_UPDATE_PREPARATION;
+import static org.talend.dataprep.exception.error.CommonErrorCodes.UNEXPECTED_EXCEPTION;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.talend.daikon.exception.ExceptionContext;
-import org.talend.dataprep.api.preparation.Preparation;
+import org.talend.dataprep.api.preparation.Step;
 import org.talend.dataprep.command.GenericCommand;
 import org.talend.dataprep.exception.TDPException;
-import org.talend.dataprep.exception.error.CommonErrorCodes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+/**
+ * Hystrix command used to update a step row etadata.
+ */
 @Component
 @Scope("request")
-public class PreparationUpdate extends GenericCommand<String> {
+public class UpdateStepRowMetadata extends GenericCommand<String> {
 
-    private PreparationUpdate(String id, Preparation preparation) {
-        super(GenericCommand.PREPARATION_GROUP);
-        execute(() -> onExecute(id, preparation));
-        onError(e -> new TDPException(UNABLE_TO_UPDATE_PREPARATION, e, ExceptionContext.build().put("id", id)));
+    /**
+     * Private constructor to ensure the IoC.
+     *
+     * @param preparationId the preparation id to update the step from.
+     * @param steps the steps to update.
+     */
+    private UpdateStepRowMetadata(String preparationId, List<Step> steps) {
+        super(PREPARATION_GROUP);
+        execute(() -> onExecute(preparationId, steps));
         on(HttpStatus.OK).then(asString());
     }
 
-    private HttpRequestBase onExecute(String id, Preparation preparation) {
+    private HttpRequestBase onExecute(String preparationId, List<Step> steps) {
         try {
-            final byte[] preparationJSONValue = objectMapper.writeValueAsBytes(preparation);
-            final HttpPut preparationCreation = new HttpPut(preparationServiceUrl + "/preparations/" + id);
+            final String stepsAsJson = objectMapper.writeValueAsString(steps);
+            final HttpPut preparationCreation = new HttpPut(preparationServiceUrl + "/preparations/" + preparationId + "/steps");
             preparationCreation.setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
-            preparationCreation.setEntity(new ByteArrayEntity(preparationJSONValue));
+            preparationCreation.setEntity(new StringEntity(stepsAsJson));
             return preparationCreation;
-        } catch (JsonProcessingException e) {
-            throw new TDPException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e);
+        } catch (UnsupportedEncodingException | JsonProcessingException e) {
+            throw new TDPException(UNEXPECTED_EXCEPTION, e);
         }
     }
 }

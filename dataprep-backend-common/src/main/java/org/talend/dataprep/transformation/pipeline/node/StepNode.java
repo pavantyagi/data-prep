@@ -53,9 +53,10 @@ public class StepNode extends BasicNode {
         Optional<RowMetadata> stepMetadata = Optional.ofNullable(step.getRowMetadata());
         final RowMetadata rowMetadata = stepMetadata.isPresent() ? stepMetadata.get() : metadata;
         if (!stepMetadata.isPresent()) {
-            step.setRowMetadata(metadata);
+            step.setRowMetadata(rowMetadata);
         }
 
+        // make sure the last node (ActionNode) link is set to after the StepNode
         if (lastNode.getLink() == null) {
             final RuntimeLink stepLink = getLink().exec();
             lastNode.setLink(new StepLink(stepLink));

@@ -109,7 +109,7 @@ public class FileSystemPreparationRepository extends ObjectPreparationRepository
             throw new TDPException(CommonErrorCodes.UNABLE_TO_SAVE_PREPARATION, e,
                     ExceptionContext.build().put("id", object.id()));
         }
-        LOG.debug("preparation #{} saved", object.id());
+        LOG.debug("{} #{} saved", object.getClass().getSimpleName(), object.id());
     }
 
     @Override
@@ -136,7 +136,7 @@ public class FileSystemPreparationRepository extends ObjectPreparationRepository
             return null;
         }
         if (!from.exists()) {
-            LOG.debug("preparation #{} not found in file system", id);
+            LOG.debug("{} #{} not found in file system", clazz.getSimpleName(), id);
             return null;
         }
 
@@ -180,7 +180,7 @@ public class FileSystemPreparationRepository extends ObjectPreparationRepository
         }
         final File file = getIdentifiableFile(object);
         FilesHelper.deleteQuietly(file);
-        LOG.debug("preparation #{} removed", object.id());
+        LOG.debug("identifiable {} #{} removed", object.getClass().getSimpleName(), object.id());
     }
 
     private File getIdentifiableFile(Identifiable object) {

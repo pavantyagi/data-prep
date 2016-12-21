@@ -89,17 +89,27 @@ class StepNodeTransformation extends Visitor {
         super.visitNode(node);
     }
 
-    // Internal state for the visitor
+    /**
+     * Internal state for the visitor.
+     */
     interface State {
 
+        /**
+         * Process the given node and return the next state.
+         *
+         * @param node the node to process.
+         * @return the next state that'll handle the node.
+         */
         State process(Node node);
-
     }
 
-    // Choose between 'default' mode (no action to take) and 'step' mode (create StepNode).
-    class Dispatch implements State {
 
-        Node previous = null;
+    /**
+     * Choose between 'default' mode (no action to take) and 'step' mode (create StepNode).
+     */
+    private class Dispatch implements State {
+
+        private Node previous = null;
 
         @Override
         public State process(Node node) {
@@ -115,12 +125,14 @@ class StepNodeTransformation extends Visitor {
         }
     }
 
-    // State when creating a StepNode
-    class StepState implements State {
+    /**
+     * State when creating a StepNode
+     */
+    private class StepState implements State {
 
         private final Node previous;
 
-        StepState(Node previous) {
+        private StepState(Node previous) {
             this.previous = previous;
         }
 
@@ -136,9 +148,12 @@ class StepNodeTransformation extends Visitor {
                 final NodeCopy copy = new NodeCopy();
                 node.accept(copy);
 
+                // insert a StepNode within the pipeline builder
                 final StepNode stepNode = new StepNode(steps.next(), copy.getCopy(), copy.getLastNode());
+                // and plug the previous link to the new StepNode
                 ofNullable(previous).ifPresent(n -> n.setLink(new BasicLink(stepNode)));
                 builder.to(stepNode);
+
                 return this;
             } else if (node instanceof ActionNode) {
                 return DISPATCH;
@@ -148,19 +163,29 @@ class StepNodeTransformation extends Visitor {
         }
 
         /**
-         * A {@link Visitor} implementation to copy nodes (and reachable nodes from visited node) using {@link Node#copyShallow()}.
+         * <p>
+         * A {@link Visitor} implementation to copy nodes (and reachable nodes from visited node) using
+         * {@link Node#copyShallow()}.
+         * </p>
+         * <p>
+         * This is used to copy both the {@link CompileNode} and the {@link ActionNode}
+         * </p>
          */
-        public class NodeCopy extends Visitor {
+        class NodeCopy extends Visitor {
 
+            /** The builder used to copy. */
             private final NodeBuilder builder = NodeBuilder.source();
 
+            /** Flag set to true when the copy is finished. */
             private boolean hasEnded = false;
 
+            /** The last node to copy. */
             private Node lastNode;
 
             @Override
             public void visitAction(ActionNode actionNode) {
                 if (!hasEnded) {
+                    // stop the copy with the first ActionNode met
                     lastNode = actionNode.copyShallow();
                     builder.to(lastNode);
                     hasEnded = true;
@@ -207,11 +232,12 @@ class StepNodeTransformation extends Visitor {
             }
         }
 
-
     }
 
-    // No specific action to take, continue building node as they previously were.
-    class DefaultState implements State {
+    /**
+     * No specific action to take, continue building node as they previously were.
+     */
+    private class DefaultState implements State {
 
         @Override
         public State process(Node node) {

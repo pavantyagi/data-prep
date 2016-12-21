@@ -16,11 +16,8 @@ import static org.talend.dataprep.cache.ContentCache.TimeToLive.DEFAULT;
 import static org.talend.dataprep.transformation.api.transformer.configuration.Configuration.Volume.SMALL;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +112,6 @@ public class PipelineTransformer implements Transformer {
 
         if (preparation != null) {
             List<Step> stepsToUpdate = new ArrayList<>();
-            stepsToUpdate.add(Step.ROOT_STEP);
             pipeline.accept(new Visitor() {
                 @Override
                 public void visitStepNode(StepNode stepNode) {
@@ -123,8 +119,9 @@ public class PipelineTransformer implements Transformer {
                     super.visitStepNode(stepNode);
                 }
             });
-            preparation.setSteps(stepsToUpdate); // TODO This may override root step?
-            preparationUpdater.update(preparation);
+
+            preparation.setSteps(stepsToUpdate);
+            preparationUpdater.update(preparation.getId(), preparation.getSteps());
         }
     }
 

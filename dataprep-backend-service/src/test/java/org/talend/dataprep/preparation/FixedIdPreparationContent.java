@@ -12,6 +12,8 @@
 
 package org.talend.dataprep.preparation;
 
+import java.util.Objects;
+
 import org.talend.dataprep.api.preparation.PreparationActions;
 
 public class FixedIdPreparationContent extends PreparationActions {
@@ -30,5 +32,37 @@ public class FixedIdPreparationContent extends PreparationActions {
     @Override
     public String getId() {
         return fixedId;
+    }
+
+    /**
+     * Custom equals for the unit tests.
+     *
+     * @param o the other object to compare.
+     * @return true if the other object is equals to this.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (!o.getClass().isAssignableFrom(this.getClass())) {
+            return false;
+        }
+        final PreparationActions other = (PreparationActions) o;
+        if (!other.id().equals(this.fixedId)) {
+            return false;
+        }
+        if (!Objects.equals(this.getActions(), other.getActions())) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 }

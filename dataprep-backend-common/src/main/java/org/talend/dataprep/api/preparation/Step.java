@@ -137,12 +137,18 @@ public class Step extends Identifiable implements Serializable {
 
     @Override
     public String toString() {
-        return "Step{" + //
-                "parentId='" + parent + '\'' + //
-                ", contentId='" + preparationActions + '\'' + //
+        String result = "Step{parentId='";
+        if (parent != null) {
+            result += parent.id();
+        } else {
+            result += "null";
+        }
+        result += '\'' + //
+                ", actions='" + preparationActions + '\'' + //
                 ", appVersion='" + appVersion + '\'' + //
                 ", diff=" + diff + //
                 '}';
+        return result;
     }
 
     @Override

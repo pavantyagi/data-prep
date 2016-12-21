@@ -25,10 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.talend.dataprep.api.folder.Folder;
-import org.talend.dataprep.api.preparation.Action;
-import org.talend.dataprep.api.preparation.AppendStep;
-import org.talend.dataprep.api.preparation.Preparation;
-import org.talend.dataprep.api.preparation.PreparationMessage;
+import org.talend.dataprep.api.preparation.*;
 import org.talend.dataprep.exception.json.JsonErrorCodeDescription;
 import org.talend.dataprep.metrics.Timed;
 
@@ -186,6 +183,24 @@ public class PreparationController {
     public String update(@ApiParam("id") @PathVariable("id") String id,
                          @RequestBody @ApiParam("preparation") final PreparationMessage preparation) {
         return preparationService.update(id, preparation);
+    }
+
+    /**
+     * Update a preparation steps.
+     *
+     * @param preparationId the preparation id (mainly for to check).
+     * @param steps the steps to update.
+     * @return the updated preparation id.
+     */
+    @RequestMapping(value = "/preparations/{preparationId}/steps", method = PUT, produces = TEXT_PLAIN_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Update a preparation steps", notes = "Returns the id of the updated step.")
+    @Timed
+    public String updateStepMetadata(@ApiParam("preparationId") @PathVariable("preparationId") String preparationId,
+            @RequestBody @ApiParam("rowMetadata") final List<Step> steps) {
+
+        preparationService.updatePreparationSteps(preparationId, steps);
+
+        return preparationId;
     }
 
     /**

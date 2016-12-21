@@ -12,12 +12,12 @@
 
 package org.talend.dataprep.transformation.pipeline;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
@@ -47,11 +47,13 @@ public class StepNodeTransformerTest {
     @Test
     public void shouldCreateStepNode() throws Exception {
         // given
-        Node node = NodeBuilder.from(new CompileNode(null, null)) //
-                .to(new ActionNode(null, null)).build();
+        Node node = NodeBuilder //
+                .from(new CompileNode(null, null)) //
+                .to(new ActionNode(null, null)) //
+                .build();
 
         // when
-        final Node processed = StepNodeTransformer.transform(node, Arrays.asList(ROOT, STEP));
+        final Node processed = StepNodeTransformer.transform(node, asList(ROOT, STEP));
 
         // then
         final Class[] expectedClasses = { SourceNode.class, StepNode.class };
@@ -64,14 +66,15 @@ public class StepNodeTransformerTest {
     @Test
     public void shouldCreateStepNodeWhenSurrounded() throws Exception {
         // given
-        Node node = NodeBuilder.from(new TestNode()) //
+        Node node = NodeBuilder //
+                .from(new TestNode()) //
                 .to(new CompileNode(null, null)) //
                 .to(new ActionNode(null, null)) //
                 .to(new BasicNode()) //
                 .build();
 
         // when
-        final Node processed = StepNodeTransformer.transform(node, Arrays.asList(ROOT, STEP));
+        final Node processed = StepNodeTransformer.transform(node, asList(ROOT, STEP));
 
         // then
         final Class[] expectedClasses = { SourceNode.class, TestNode.class, StepNode.class, BasicNode.class };
@@ -83,7 +86,8 @@ public class StepNodeTransformerTest {
     @Test
     public void shouldCreateStepNodesWhenSurrounded() throws Exception {
         // given
-        Node node = NodeBuilder.from(new TestNode()) //
+        Node node = NodeBuilder //
+                .from(new TestNode()) //
                 .to(new CompileNode(null, null)) //
                 .to(new ActionNode(null, null)) //
                 .to(new BasicNode()) //
@@ -92,7 +96,7 @@ public class StepNodeTransformerTest {
                 .build();
 
         // when
-        final Node processed = StepNodeTransformer.transform(node, Arrays.asList(ROOT, STEP, STEP));
+        final Node processed = StepNodeTransformer.transform(node, asList(ROOT, STEP, STEP));
 
         // then
         final AtomicInteger stepNodeCount = new AtomicInteger();
@@ -110,8 +114,10 @@ public class StepNodeTransformerTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailCreateStepNode() throws Exception {
         // given
-        Node node = NodeBuilder.from(new CompileNode(null, null)) //
-                .to(new ActionNode(null, null)).build();
+        Node node = NodeBuilder //
+                .from(new CompileNode(null, null)) //
+                .to(new ActionNode(null, null)) //
+                .build();
 
         // then
         StepNodeTransformer.transform(node, emptyList());
@@ -120,11 +126,13 @@ public class StepNodeTransformerTest {
     @Test
     public void shouldCreateStepNodeWithTooManySteps() throws Exception {
         // given
-        Node node = NodeBuilder.from(new CompileNode(null, null)) //
-                .to(new ActionNode(null, null)).build();
+        Node node = NodeBuilder //
+                .from(new CompileNode(null, null)) //
+                .to(new ActionNode(null, null)) //
+                .build();
 
         // when
-        final Node processed = StepNodeTransformer.transform(node, Arrays.asList(ROOT, STEP, STEP));
+        final Node processed = StepNodeTransformer.transform(node, asList(ROOT, STEP, STEP));
 
         // then
         final Class[] expectedClasses = { SourceNode.class, StepNode.class };

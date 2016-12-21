@@ -31,7 +31,6 @@ import org.talend.dataprep.api.action.ActionDefinition;
 import org.talend.dataprep.api.preparation.*;
 import org.talend.dataprep.api.share.Owner;
 import org.talend.dataprep.conversions.BeanConversionService;
-import org.talend.dataprep.api.preparation.PreparationMessage;
 import org.talend.dataprep.preparation.service.UserPreparation;
 import org.talend.dataprep.preparation.store.PreparationRepository;
 import org.talend.dataprep.security.Security;
@@ -61,7 +60,7 @@ public class PreparationConversions {
     private final Predicate<Step> isNotRootStep = step -> !rootStep.id().equals(step.id());
 
     @Bean
-    public PreparationConversionsInitialization dataSetConversionsInitialization() {
+    public PreparationConversionsInitialization preparationConversionsInitialization() {
         return new PreparationConversionsInitialization();
     }
 
@@ -71,7 +70,8 @@ public class PreparationConversions {
         public Object postProcessBeforeInitialization(Object bean, String beanName) {
             if (bean instanceof BeanConversionService) {
                 final BeanConversionService conversionService = (BeanConversionService) bean;
-                conversionService.register(fromBean(Preparation.class) //
+                conversionService //
+                        .register(fromBean(Preparation.class) //
                         .toBeans(PreparationMessage.class, UserPreparation.class) //
                         .using(PreparationMessage.class, (preparation, preparationMessage) -> {
                             final List<Step> steps = preparationUtils.listSteps(preparation.getHeadId(), preparationRepository);
