@@ -78,9 +78,6 @@ public class FileSystemDataSetMetadataRepository extends ObjectDataSetMetadataRe
         }
     }
 
-    /**
-     * @see DataSetMetadataRepository#add(DataSetMetadata)
-     */
     @Override
     public void add(DataSetMetadata metadata) {
 
@@ -157,7 +154,7 @@ public class FileSystemDataSetMetadataRepository extends ObjectDataSetMetadataRe
 
     /**
      * Return the file that matches the given metadata id.
-     * 
+     *
      * @param metadataId the metadata id.
      * @return the file where to read/write the metadata.
      */

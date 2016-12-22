@@ -107,7 +107,7 @@ public class EnrichedDataSetMetadata extends DataSetMetadata {
 
         /**
          * Constructor.
-         * 
+         *
          * @param source the preparation source.
          */
         public PreparationSummary(Preparation source) {
