@@ -88,13 +88,13 @@ public class DataSetServiceTest extends DataSetBaseTest {
 
         DataSetMetadata metadata1 = dataSetMetadataRepository.get(dataSetId);
         metadata1.setName("CCCC");
-        dataSetMetadataRepository.add(metadata1);
+        dataSetMetadataRepository.save(metadata1);
         DataSetMetadata metadata2 = dataSetMetadataRepository.get(dataSetId2);
         metadata2.setName("BBBB");
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         DataSetMetadata metadata3 = dataSetMetadataRepository.get(dataSetId3);
         metadata3.setName("AAAA");
-        dataSetMetadataRepository.add(metadata3);
+        dataSetMetadataRepository.save(metadata3);
 
         // when
         final String actual = when().get("/datasets/{id}/compatibledatasets?sort=name", dataSetId).asString();
@@ -116,13 +116,13 @@ public class DataSetServiceTest extends DataSetBaseTest {
 
         DataSetMetadata metadata1 = dataSetMetadataRepository.get(dataSetId);
         metadata1.setName("CCCC");
-        dataSetMetadataRepository.add(metadata1);
+        dataSetMetadataRepository.save(metadata1);
         DataSetMetadata metadata2 = dataSetMetadataRepository.get(dataSetId2);
         metadata2.setName("BBBB");
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         DataSetMetadata metadata3 = dataSetMetadataRepository.get(dataSetId3);
         metadata3.setName("AAAA");
-        dataSetMetadataRepository.add(metadata3);
+        dataSetMetadataRepository.save(metadata3);
 
         // when
         final String actual = when().get("/datasets/{id}/compatibledatasets?sort=date", dataSetId).asString();
@@ -144,13 +144,13 @@ public class DataSetServiceTest extends DataSetBaseTest {
 
         DataSetMetadata metadata1 = dataSetMetadataRepository.get(dataSetId);
         metadata1.setName("CCCC");
-        dataSetMetadataRepository.add(metadata1);
+        dataSetMetadataRepository.save(metadata1);
         DataSetMetadata metadata2 = dataSetMetadataRepository.get(dataSetId2);
         metadata2.setName("BBBB");
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         DataSetMetadata metadata3 = dataSetMetadataRepository.get(dataSetId3);
         metadata3.setName("AAAA");
-        dataSetMetadataRepository.add(metadata3);
+        dataSetMetadataRepository.save(metadata3);
 
         // when
         final String actual = when().get("/datasets/{id}/compatibledatasets?sort=date&order=asc", dataSetId).asString();
@@ -172,13 +172,13 @@ public class DataSetServiceTest extends DataSetBaseTest {
 
         DataSetMetadata metadata1 = dataSetMetadataRepository.get(dataSetId);
         metadata1.setName("CCCC");
-        dataSetMetadataRepository.add(metadata1);
+        dataSetMetadataRepository.save(metadata1);
         DataSetMetadata metadata2 = dataSetMetadataRepository.get(dataSetId2);
         metadata2.setName("BBBB");
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         DataSetMetadata metadata3 = dataSetMetadataRepository.get(dataSetId3);
         metadata3.setName("AAAA");
-        dataSetMetadataRepository.add(metadata3);
+        dataSetMetadataRepository.save(metadata3);
 
         // when
         final String actualASC = when().get("/datasets/{id}/compatibledatasets?sort=name&order=asc", dataSetId).asString();
@@ -219,7 +219,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
 
         metadata.getContent().addParameter(CSVFormatFamily.SEPARATOR_PARAMETER, ";");
-        dataSetMetadataRepository.add(metadata);
+        dataSetMetadataRepository.save(metadata);
 
         String expected = "[{\"id\":\"" + id1
                 + "\",\"name\":\"name1\",\"records\":0,\"author\":\"anonymous\",\"nbLinesHeader\":0,\"nbLinesFooter\":0,\"created\":0}]";
@@ -234,7 +234,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
         DataSetMetadata metadata2 = metadataBuilder.metadata().id(id2).name("name2").author("anonymous").created(0)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
         metadata2.getContent().addParameter(CSVFormatFamily.SEPARATOR_PARAMETER, ";");
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         when().get("/datasets").then().statusCode(OK.value());
         String response = when().get("/datasets").asString();
         List<String> ids = from(response).get("id");
@@ -267,11 +267,11 @@ public class DataSetServiceTest extends DataSetBaseTest {
         String id1 = UUID.randomUUID().toString();
         final DataSetMetadata metadata1 = metadataBuilder.metadata().id(id1).name("AAAA").author("anonymous").created(0)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata1);
+        dataSetMetadataRepository.save(metadata1);
         String id2 = UUID.randomUUID().toString();
         final DataSetMetadata metadata2 = metadataBuilder.metadata().id(id2).name("BBBB").author("anonymous").created(0)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         // Ensure order by name (most recent first)
         String actual = when().get("/datasets?sort=name").asString();
         final Iterator<JsonNode> elements = mapper.readTree(actual).elements();
@@ -289,11 +289,11 @@ public class DataSetServiceTest extends DataSetBaseTest {
         String id1 = UUID.randomUUID().toString();
         final DataSetMetadata metadata1 = metadataBuilder.metadata().id(id1).name("AAAA").author("anonymous").created(20)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata1);
+        dataSetMetadataRepository.save(metadata1);
         String id2 = UUID.randomUUID().toString();
         final DataSetMetadata metadata2 = metadataBuilder.metadata().id(id2).name("BBBB").author("anonymous").created(0)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         // Ensure order by date (most recent first)
         String actual = when().get("/datasets?sort=date").asString();
         final Iterator<JsonNode> elements = mapper.readTree(actual).elements();
@@ -311,11 +311,11 @@ public class DataSetServiceTest extends DataSetBaseTest {
         String id1 = UUID.randomUUID().toString();
         final DataSetMetadata metadata1 = metadataBuilder.metadata().id(id1).name("AAAA").author("anonymous").created(20)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata1);
+        dataSetMetadataRepository.save(metadata1);
         String id2 = UUID.randomUUID().toString();
         final DataSetMetadata metadata2 = metadataBuilder.metadata().id(id2).name("BBBB").author("anonymous").created(0)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         // Ensure order by date (most recent first)
         String actual = when().get("/datasets?sort=date&order=desc").asString();
         Iterator<JsonNode> elements = mapper.readTree(actual).elements();
@@ -349,15 +349,15 @@ public class DataSetServiceTest extends DataSetBaseTest {
         String id1 = UUID.randomUUID().toString();
         final DataSetMetadata metadata1 = metadataBuilder.metadata().id(id1).name("AAAA").author("anonymous").created(20)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata1);
+        dataSetMetadataRepository.save(metadata1);
         String id2 = UUID.randomUUID().toString();
         final DataSetMetadata metadata2 = metadataBuilder.metadata().id(id2).name("CCCC").author("anonymous").created(0)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata2);
+        dataSetMetadataRepository.save(metadata2);
         String id3 = UUID.randomUUID().toString();
         final DataSetMetadata metadata3 = metadataBuilder.metadata().id(id3).name("bbbb").author("anonymous").created(0)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
-        dataSetMetadataRepository.add(metadata3);
+        dataSetMetadataRepository.save(metadata3);
         // Ensure order by name (last character from alphabet first)
         String actual = when().get("/datasets?sort=name&order=desc").asString();
         Iterator<JsonNode> elements = mapper.readTree(actual).elements();
@@ -498,7 +498,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
         final DataSetMetadata dataSetMetadata = metadataBuilder.metadata().id(datasetId)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
         dataSetMetadata.getContent().addParameter(CSVFormatFamily.SEPARATOR_PARAMETER, ";");
-        dataSetMetadataRepository.add(dataSetMetadata);
+        dataSetMetadataRepository.save(dataSetMetadata);
         contentStore.storeAsRaw(dataSetMetadata, new ByteArrayInputStream(new byte[0]));
 
         final UserData userData = new UserData(security.getUserId(), versionService.version().getVersionId());
@@ -597,7 +597,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
 
         dataSetMetadata.getContent().addParameter(CSVFormatFamily.SEPARATOR_PARAMETER, ";");
-        dataSetMetadataRepository.add(dataSetMetadata);
+        dataSetMetadataRepository.save(dataSetMetadata);
 
         List<String> ids = from(when().get("/datasets").asString()).get("");
         assertThat(ids.size(), is(1));
@@ -717,7 +717,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
         final DataSetMetadata dataSetMetadata = dataSetMetadataRepository.get(dataSetId);
         assertThat(dataSetMetadata, notNullValue());
         dataSetMetadata.setDraft(false); // Ensure it is no draft
-        dataSetMetadataRepository.add(dataSetMetadata);
+        dataSetMetadataRepository.save(dataSetMetadata);
         // Should receive a 301 that redirects to the GET data set content operation
         given().redirects().follow(false).contentType(JSON).get("/datasets/{id}/preview", dataSetId) //
                 .then() //
@@ -1062,7 +1062,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
         DataSetMetadata metadata = builder.build();
         metadata.getContent().addParameter(CSVFormatFamily.SEPARATOR_PARAMETER, ";");
 
-        dataSetMetadataRepository.add(metadata);
+        dataSetMetadataRepository.save(metadata);
         String contentAsString = when().get("/datasets/{id}/metadata", "1234").asString();
         InputStream expected = this.getClass().getResourceAsStream("../metadata1.json");
         assertThat(contentAsString, sameJSONAsFile(expected));
@@ -1178,8 +1178,8 @@ public class DataSetServiceTest extends DataSetBaseTest {
         String dsId2 = UUID.randomUUID().toString();
 
         when().get("/datasets/favorites").then().statusCode(OK.value()).body(equalTo("[]"));
-        dataSetMetadataRepository.add(metadataBuilder.metadata().id(dsId1).build());
-        dataSetMetadataRepository.add(metadataBuilder.metadata().id(dsId2).build());
+        dataSetMetadataRepository.save(metadataBuilder.metadata().id(dsId1).build());
+        dataSetMetadataRepository.save(metadataBuilder.metadata().id(dsId2).build());
         // check set
         when().put("/datasets/{id}/favorite", dsId1).then().statusCode(OK.value());
         when().put("/datasets/{id}/favorite?unset=false", dsId2).then().statusCode(OK.value());
@@ -1209,7 +1209,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
 
         DataSetMetadata dataSetMetadataToBeSet = metadataBuilder.metadata().id(expectedDsId).build();
         dataSetMetadataToBeSet.setFavorite(true);
-        dataSetMetadataRepository.add(dataSetMetadataToBeSet);
+        dataSetMetadataRepository.save(dataSetMetadataToBeSet);
         DataSetMetadata dataSetMetadataGet = dataSetMetadataRepository.get(expectedDsId);
         assertNotNull(dataSetMetadataGet);
         assertFalse(dataSetMetadataGet.isFavorite());
@@ -1241,7 +1241,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
             column = row.getById("0002");
             final SemanticDomain jsoDomain = new SemanticDomain("JSO", "JSO label", 1.0F);
             column.getSemanticDomains().add(jsoDomain);
-            dataSetMetadataRepository.add(dataSetMetadata);
+            dataSetMetadataRepository.save(dataSetMetadata);
         } finally {
             lock.unlock();
         }
@@ -1413,13 +1413,13 @@ public class DataSetServiceTest extends DataSetBaseTest {
         dataSetMetadata1.setFavorite(true);
         dataSetMetadata1.getGovernance().setCertificationStep(Certification.CERTIFIED);
         dataSetMetadata1.setLastModificationDate(Instant.now().getEpochSecond()+1);
-        dataSetMetadataRepository.add(dataSetMetadata1);
+        dataSetMetadataRepository.save(dataSetMetadata1);
         final DataSetMetadata dataSetMetadata2 = dataSetMetadataRepository.get(dataSetId2);
         dataSetMetadata2.setFavorite(true);
-        dataSetMetadataRepository.add(dataSetMetadata2);
+        dataSetMetadataRepository.save(dataSetMetadata2);
         final DataSetMetadata dataSetMetadata3 = dataSetMetadataRepository.get(dataSetId3);
         dataSetMetadata3.getGovernance().setCertificationStep(Certification.CERTIFIED);
-        dataSetMetadataRepository.add(dataSetMetadata3);
+        dataSetMetadataRepository.save(dataSetMetadata3);
 
         // @formatter:off
         // certified, favorite and recent
@@ -1538,7 +1538,7 @@ public class DataSetServiceTest extends DataSetBaseTest {
         DataSetMetadata dataSetMetadata = metadataBuilder.metadata().id(datasetId)
                 .formatFamilyId(new CSVFormatFamily().getBeanId()).build();
         dataSetMetadata.getContent().addParameter(CSVFormatFamily.SEPARATOR_PARAMETER, ";");
-        dataSetMetadataRepository.add(dataSetMetadata);
+        dataSetMetadataRepository.save(dataSetMetadata);
         contentStore.storeAsRaw(dataSetMetadata, new ByteArrayInputStream(new byte[0]));
         return datasetId;
     }
