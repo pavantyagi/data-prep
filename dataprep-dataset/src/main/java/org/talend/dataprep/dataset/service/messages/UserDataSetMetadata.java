@@ -13,6 +13,7 @@
 package org.talend.dataprep.dataset.service.messages;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.talend.dataprep.api.dataset.DataSetMetadata;
@@ -134,5 +135,27 @@ public class UserDataSetMetadata extends DataSetMetadata implements SharedResour
         return getAuthor();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        UserDataSetMetadata that = (UserDataSetMetadata) o;
+        return favorite == that.favorite && //
+                sharedDataSet == that.sharedDataSet && //
+                sharedByMe == that.sharedByMe && //
+                Objects.equals(owner, that.owner) && //
+                Objects.equals(roles, that.roles);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), favorite, sharedDataSet, sharedByMe, owner, roles);
+    }
 }

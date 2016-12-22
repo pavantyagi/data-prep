@@ -66,7 +66,6 @@ import org.talend.dataprep.dataset.service.api.Import;
 import org.talend.dataprep.dataset.service.api.Import.ImportBuilder;
 import org.talend.dataprep.dataset.service.api.UpdateColumnParameters;
 import org.talend.dataprep.dataset.service.messages.UserDataSetMetadata;
-import org.talend.dataprep.dataset.store.content.ContentStoreRouter;
 import org.talend.dataprep.dataset.store.metadata.DataSetMetadataRepository;
 import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.DataSetErrorCodes;
@@ -92,7 +91,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @Api(value = "datasets", basePath = "/datasets", description = "Operations on data sets")
-public class DataSetService extends BaseDataSetService {
+public class DataSetService<D extends DataSetMetadata> extends BaseDataSetService {
 
     /** This class' logger. */
     private static final Logger LOG = LoggerFactory.getLogger(DataSetService.class);
@@ -116,7 +115,7 @@ public class DataSetService extends BaseDataSetService {
      * Dataset metadata repository.
      */
     @Autowired
-    protected DataSetMetadataRepository dataSetMetadataRepository;
+    protected DataSetMetadataRepository<D> dataSetMetadataRepository;
 
     /**
      * Format analyzer needed to update the schema.
@@ -208,7 +207,7 @@ public class DataSetService extends BaseDataSetService {
             LOG.debug("TQL Filter in use: {}", tqlFilter);
 
             // Get all data sets according to filter
-            try (Stream<DataSetMetadata> stream = dataSetMetadataRepository.list(tqlFilter)) {
+            try (Stream<D> stream = dataSetMetadataRepository.list(tqlFilter)) {
                 final Comparator<DataSetMetadata> comparator = getDataSetMetadataComparator(sort, order);
                 return stream.sorted(comparator) //
                         .map(m -> conversionService.convert(m, UserDataSetMetadata.class, (metadata, message) -> {
@@ -242,15 +241,15 @@ public class DataSetService extends BaseDataSetService {
             @ApiParam(value = "Sort key (by name or date).") @RequestParam(defaultValue = "DATE", required = false) String sort,
             @ApiParam(value = "Order for sort key (desc or asc).") @RequestParam(defaultValue = "DESC", required = false) String order) {
 
-        Spliterator<DataSetMetadata> iterator = dataSetMetadataRepository.listCompatible(dataSetId).spliterator();
+        Spliterator<D> iterator = dataSetMetadataRepository.listCompatible(dataSetId).spliterator();
 
         final Comparator<DataSetMetadata> comparator = getDataSetMetadataComparator(sort, order);
 
         // Return sorted results
-        try (Stream<DataSetMetadata> stream = stream(iterator, false)) {
+        try (Stream<D> stream = stream(iterator, false)) {
             String userId = security.getUserId();
             final UserData userData = userDataRepository.get(userId);
-            return stream.filter(metadata -> !metadata.getLifecycle().importing()) //
+            return stream.filter(metadata -> !metadata.getLifecycle().isImporting()) //
                     .map(m -> conversionService.convert(m , UserDataSetMetadata.class, (metadata, message) -> {
                         if (userData != null) {
                             message.setFavorite(userData.getFavoritesDatasets().contains(metadata.getId()));
@@ -310,7 +309,7 @@ public class DataSetService extends BaseDataSetService {
                     .tag(tag) //
                     .build();
 
-            dataSetMetadata.getLifecycle().importing(true); // Indicate data set is being imported
+            dataSetMetadata.getLifecycle().setImporting(true); // Indicate data set is being imported
 
             // Save data set content
             LOG.debug(marker, "Storing content...");
@@ -920,7 +919,8 @@ public class DataSetService extends BaseDataSetService {
     @RequestMapping(value = "/datasets/search", method = GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Search the dataset metadata", notes = "Search the dataset metadata.")
     @Timed
-    public Iterable<DataSetMetadata> search(@RequestParam @ApiParam(value = "What to search in datasets") final String name,
+    public <D> Iterable<D> search( //
+            @RequestParam @ApiParam(value = "What to search in datasets") final String name, //
             @RequestParam @ApiParam(value = "The searched name should be the full name") final boolean strict) {
 
         LOG.debug("search datasets metadata for {}", name);
@@ -931,7 +931,7 @@ public class DataSetService extends BaseDataSetService {
         } else {
             filter = "name contains '" + name + "'";
         }
-        final Set<DataSetMetadata> found = dataSetMetadataRepository.list(filter).collect(toSet());
+        final Set found = dataSetMetadataRepository.list(filter).collect(toSet());
 
         LOG.info("found {} dataset while searching {}", found.size(), name);
 

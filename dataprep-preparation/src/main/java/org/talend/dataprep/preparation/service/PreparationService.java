@@ -229,7 +229,7 @@ public class PreparationService {
      * @param sort Sort key (by name, creation date or modification date).
      * @param order Order for sort key (desc or asc).
      */
-    public Iterable<PreparationMessage> searchPreparations(String dataSetId, String folderId, String name, boolean exactMatch,
+    public Iterable<UserPreparation> searchPreparations(String dataSetId, String folderId, String name, boolean exactMatch,
                                                            String sort, String order) {
         // TODO should stream the response à la DataSetRowIterator & DataSetRowStreamSerializer
         final Collection<Preparation> result;
@@ -246,6 +246,7 @@ public class PreparationService {
         return result.stream() //
                 .sorted(getPreparationComparator(sort, order)) //
                 .map(p -> beanConversionService.convert(p, PreparationMessage.class)) //
+                .map(p -> beanConversionService.convert(p, UserPreparation.class)) //
                 .collect(toList());
     }
 

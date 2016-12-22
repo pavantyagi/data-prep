@@ -117,7 +117,7 @@ public class DataSetMetadataBuilderTest extends ServiceBaseTests {
     @Test
     public void testImporting() throws Exception {
         final DataSetMetadata metadata = builder.metadata().id("1234").importing(true).build();
-        assertEquals(true, metadata.getLifecycle().importing());
+        assertEquals(true, metadata.getLifecycle().isImporting());
     }
 
     @Test
@@ -242,8 +242,8 @@ public class DataSetMetadataBuilderTest extends ServiceBaseTests {
         metadata.getLifecycle().contentIndexed(true);
         metadata.getLifecycle().qualityAnalyzed(true);
         metadata.getLifecycle().schemaAnalyzed(true);
-        metadata.getLifecycle().inProgress(true);
-        metadata.getLifecycle().importing(true);
+        metadata.getLifecycle().setInProgress(true);
+        metadata.getLifecycle().setImporting(true);
         metadata.setSchemaParserResult(schemaParserResult);
         metadata.setTag("MyTag");
 
@@ -274,8 +274,8 @@ public class DataSetMetadataBuilderTest extends ServiceBaseTests {
         assertThat(copy.getLifecycle().contentIndexed(), equalTo(original.getLifecycle().contentIndexed()));
         assertThat(copy.getLifecycle().qualityAnalyzed(), equalTo(original.getLifecycle().qualityAnalyzed()));
         assertThat(copy.getLifecycle().schemaAnalyzed(), equalTo(original.getLifecycle().schemaAnalyzed()));
-        assertThat(copy.getLifecycle().inProgress(), equalTo(original.getLifecycle().inProgress()));
-        assertThat(copy.getLifecycle().importing(), equalTo(original.getLifecycle().importing()));
+        assertThat(copy.getLifecycle().isInProgress(), equalTo(original.getLifecycle().isInProgress()));
+        assertThat(copy.getLifecycle().isImporting(), equalTo(original.getLifecycle().isImporting()));
         assertThat(copy.getSchemaParserResult(), equalTo(original.getSchemaParserResult()));
         final List<String> originalColumnsIds = original.getRowMetadata().getColumns().stream().map(ColumnMetadata::getId)
                 .collect(toList());

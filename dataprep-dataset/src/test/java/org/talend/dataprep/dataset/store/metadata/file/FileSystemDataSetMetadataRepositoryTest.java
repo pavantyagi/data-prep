@@ -63,7 +63,7 @@ public class FileSystemDataSetMetadataRepositoryTest extends DataSetBaseTest {
     public void matchOnNested() throws Exception {
         // given
         final DataSetMetadata metadata = getMetadata("456789");
-        metadata.getLifecycle().importing(true);
+        metadata.getLifecycle().setImporting(true);
         repository.add(metadata);
 
         // when

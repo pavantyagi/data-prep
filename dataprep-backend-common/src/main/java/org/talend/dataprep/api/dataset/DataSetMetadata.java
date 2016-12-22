@@ -48,7 +48,7 @@ public class DataSetMetadata implements Serializable {
 
     /** Dataset life cycle status. */
     @JsonProperty("lifecycle")
-    private final DataSetLifecycle lifecycle = new DataSetLifecycle();
+    private DataSetLifecycle lifecycle = new DataSetLifecycle();
 
     @JsonProperty("content")
     @JsonUnwrapped
@@ -57,7 +57,7 @@ public class DataSetMetadata implements Serializable {
     /** Dataset governance. */
     @JsonProperty("governance")
     @JsonUnwrapped
-    private final DataSetGovernance governance = new DataSetGovernance();
+    private DataSetGovernance governance = new DataSetGovernance();
 
     /** Dataset location. */
     @JsonProperty("location")
@@ -179,6 +179,13 @@ public class DataSetMetadata implements Serializable {
     }
 
     /**
+     * @param lifecycle the lifecycle to set.
+     */
+    public void setLifecycle(DataSetLifecycle lifecycle) {
+        this.lifecycle = lifecycle;
+    }
+
+    /**
      * @return the dataset content summary.
      */
     public DataSetContent getContent() {
@@ -194,6 +201,13 @@ public class DataSetMetadata implements Serializable {
      */
     public DataSetGovernance getGovernance() {
         return this.governance;
+    }
+
+    /**
+     * @param governance the governance to set.
+     */
+    public void setGovernance(DataSetGovernance governance) {
+        this.governance = governance;
     }
 
     /**

@@ -111,7 +111,7 @@ public class PreparationController {
     @RequestMapping(value = "/preparations/search", method = GET, produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Search for preparations details", notes = "Returns the list of preparations details that match the search criteria.")
     @Timed
-    public Iterable<PreparationMessage> searchPreparations(
+    public Iterable<UserPreparation> searchPreparations(
             @RequestParam(required = false) @ApiParam("dataSetId") String dataSetId,
             @RequestParam(required = false) @ApiParam(value = "path of the folderId where to look for preparations") String folderId,
             @RequestParam(required = false) @ApiParam("name") String name,

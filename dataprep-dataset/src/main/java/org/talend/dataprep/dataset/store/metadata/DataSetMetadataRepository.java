@@ -24,7 +24,7 @@ import org.talend.dataprep.lock.DistributedLock;
 /**
  * Interface for all DatasetMetadata repository implementations.
  */
-public interface DataSetMetadataRepository {
+public interface DataSetMetadataRepository<D extends DataSetMetadata> {
 
     /**
      * Returns <code>true</code> if at least one {@link DataSetMetadata} matches given filter.
@@ -37,14 +37,14 @@ public interface DataSetMetadataRepository {
      * @return A {@link java.lang.Iterable iterable} of {@link DataSetMetadata data set}. Returned data set are expected
      * to be visible by current user.
      */
-    Stream<DataSetMetadata> list();
+    Stream<D> list();
 
     /**
      * Returns an {@link Iterable} of all {@link DataSetMetadata} that match given filter.
      * @param filter A TQL filter (i.e. storage-agnostic)
      * @return A {@link Iterable} of {@link DataSetMetadata} that matches <code>filter</code>.
      */
-    Stream<DataSetMetadata> list(String filter);
+    Stream<D> list(String filter);
 
     /**
      * <p>
@@ -83,7 +83,7 @@ public interface DataSetMetadataRepository {
      * @return The {@link DataSetMetadata} with given <code>id</code> or null if non found.
      */
     @Nullable
-    DataSetMetadata get(String id);
+    D get(String id);
 
     /**
      * Removes the {@link DataSetMetadata data set} with given id.
@@ -107,12 +107,12 @@ public interface DataSetMetadataRepository {
      * @param id the id of a data set
      * @return A {@link java.lang.Iterable iterable} of {@link DataSetMetadata data set}.
      */
-    default Iterable<DataSetMetadata> listCompatible(String id) {
+    default Iterable<D> listCompatible(String id) {
         final DataSetMetadata metadata = get(id);
         if (metadata == null) {
             return Collections.emptyList();
         }
-        final Stream<DataSetMetadata> stream = list().filter(m -> m != null && !metadata.equals(m) && metadata.compatible(m));
+        final Stream<D> stream = list().filter(m -> m != null && !metadata.equals(m) && metadata.compatible(m));
         return stream::iterator;
     }
 

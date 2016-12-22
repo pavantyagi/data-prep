@@ -80,4 +80,9 @@ public class UserPreparation extends PreparationMessage implements SharedResourc
         return getAuthor();
     }
 
+    @Override
+    public String toString() {
+        return "UserPreparation{" + "owner=" + owner + ", sharedPreparation=" + sharedPreparation + ", sharedByMe=" + sharedByMe
+                + ", roles=" + roles + ", ownerId='" + ownerId + '\'' + "} " + super.toString();
+    }
 }

@@ -29,10 +29,10 @@ import org.talend.dataprep.user.store.UserDataRepository;
 public class DataSetConversions {
 
     @Autowired
-    Security security;
+    private Security security;
 
     @Autowired
-    UserDataRepository userDataRepository;
+    private UserDataRepository userDataRepository;
 
     @Bean
     public DataSetConversionsInitialization dataSetConversionsInitialization() {
@@ -47,13 +47,13 @@ public class DataSetConversions {
                 final BeanConversionService conversionService = (BeanConversionService) bean;
                 conversionService.register(fromBean(DataSetMetadata.class) //
                         .toBeans(UserDataSetMetadata.class) //
-                        .using(UserDataSetMetadata.class, (metadata, message) -> {
+                        .using(UserDataSetMetadata.class, (metadata, userMetadata) -> {
                             String userId = security.getUserId();
                             final UserData userData = userDataRepository.get(userId);
                             if (userData != null) {
-                                message.setFavorite(userData.getFavoritesDatasets().contains(metadata.getId()));
+                                userMetadata.setFavorite(userData.getFavoritesDatasets().contains(metadata.getId()));
                             }
-                            return message;
+                            return userMetadata;
                         }) //
                         .build()
                 );

@@ -13,6 +13,8 @@
 
 package org.talend.dataprep.configuration;
 
+import static org.talend.dataprep.api.preparation.Step.ROOT_ACTIONS;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -36,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class BaseContent {
 
     /** Kept here for compatibility between versions. **/
-    private static final String CONSTANT_ROOT_STEP_PREPARATION_ACTIONS_ID = "cdcd5c9a3a475f2298b5ee3f4258f8207ba10879";
+    // private static final String CONSTANT_ROOT_STEP_PREPARATION_ACTIONS_ID = "cdcd5c9a3a475f2298b5ee3f4258f8207ba10879";
 
     /** The version service. */
     @Autowired
@@ -44,16 +46,12 @@ public class BaseContent {
 
     @Bean
     public Converter<String, JsonNode> jsonNodeConverter() {
-        return new Converter<String, JsonNode>() {
-
-            @Override
-            public JsonNode convert(String source) {
-                ObjectMapper mapper = new ObjectMapper();
-                try {
-                    return mapper.readTree(source);
-                } catch (IOException e) {
-                    throw new TDPException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e);
-                }
+        return source -> {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                return mapper.readTree(source);
+            } catch (IOException e) {
+                throw new TDPException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e);
             }
         };
     }
@@ -63,9 +61,11 @@ public class BaseContent {
      */
     @Bean(name = "rootContent")
     public PreparationActions initRootContent() {
-        PreparationActions preparationActions = new PreparationActions(Collections.emptyList(),
-                versionService.version().getVersionId());
-        preparationActions.setId(CONSTANT_ROOT_STEP_PREPARATION_ACTIONS_ID);
+        PreparationActions preparationActions = new PreparationActions( //
+                Collections.emptyList(), //
+                versionService.version().getVersionId() //
+        );
+        preparationActions.setId(ROOT_ACTIONS.id());
         return preparationActions;
     }
 

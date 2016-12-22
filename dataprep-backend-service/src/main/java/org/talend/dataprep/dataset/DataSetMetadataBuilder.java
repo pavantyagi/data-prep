@@ -383,8 +383,8 @@ public class DataSetMetadataBuilder {
         this.contentAnalyzed = original.getLifecycle().contentIndexed();
         this.qualityAnalyzed = original.getLifecycle().qualityAnalyzed();
         this.schemaAnalyzed = original.getLifecycle().schemaAnalyzed();
-        this.inProgress = original.getLifecycle().inProgress();
-        this.importing = original.getLifecycle().importing();
+        this.inProgress = original.getLifecycle().isInProgress();
+        this.importing = original.getLifecycle().isImporting();
 
         this.schemaParserResult = original.getSchemaParserResult();
         if (original.getRowMetadata() != null) {
@@ -466,8 +466,8 @@ public class DataSetMetadataBuilder {
         metadataLifecycle.contentIndexed(contentAnalyzed);
         metadataLifecycle.schemaAnalyzed(schemaAnalyzed);
         metadataLifecycle.qualityAnalyzed(qualityAnalyzed);
-        metadataLifecycle.importing(importing);
-        metadataLifecycle.inProgress(inProgress);
+        metadataLifecycle.setImporting(importing);
+        metadataLifecycle.setInProgress(inProgress);
         return metadata;
     }
 }

@@ -42,7 +42,7 @@ public class Step extends Identifiable implements Serializable {
         }
     };
 
-    private static final PreparationActions ROOT_ACTIONS = new PreparationActions() {
+    public static final PreparationActions ROOT_ACTIONS = new PreparationActions() {
 
         @Override
         public String id() {
