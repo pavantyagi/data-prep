@@ -359,4 +359,36 @@ describe('Import service', () => {
 
 		}));
 	});
+
+	describe('getDatastoreFormByDatasetId', () => {
+		beforeEach(inject(($q, ImportRestService) => {
+			spyOn(ImportRestService, 'getDatastoreFormByDatasetId').and.returnValue($q.when());
+
+		}));
+
+		it('should call REST service', inject((ImportService, ImportRestService) => {
+			// given
+			const datasetId = '123-abc-456';
+
+			// when
+			ImportService.getDatastoreFormByDatasetId(datasetId);
+
+			// then
+			expect(ImportRestService.createDataset).toHaveBeenCalledWith(datasetId);
+		}));
+
+		it('should manage loader', inject(($rootScope, ImportService) => {
+			// given
+			const datasetId = '123-abc-456';
+			spyOn($rootScope, '$emit').and.returnValue();
+
+			// when
+			ImportService.getDatastoreFormByDatasetId(datasetId);
+			expect($rootScope.$emit).toHaveBeenCalledWith('talend.loading.start');
+			$rootScope.$digest();
+
+			// then
+			expect($rootScope.$emit).toHaveBeenCalledWith('talend.loading.stop');
+		}));
+	});
 });

@@ -26,6 +26,7 @@ export default function ImportRestService($http, RestURLs) {
 		getDatasetForm,
 		refreshDatasetForm,
 		createDataset,
+		getDatastoreFormByDatasetId,
 	};
 	/**
 	 * @ngdoc method
@@ -102,5 +103,16 @@ export default function ImportRestService($http, RestURLs) {
 	 */
 	function createDataset(datastoreId, formData) {
 		return $http.post(`${RestURLs.tcompUrl}/datastores/${datastoreId}/dataset`, formData);
+	}
+
+	/**
+	 * @ngdoc method
+	 * @name getDatastoreFormByDatasetId
+	 * @methodOf data-prep.services.import.service:ImportRestService
+	 * @description Get datastore filled form by dataset id
+	 * @returns {Promise} The GET call promise
+	 */
+	function getDatastoreFormByDatasetId(datasetId) {
+		return $http.get(`${RestURLs.tcompUrl}/datasets/${datasetId}/datastore/properties`);
 	}
 }
