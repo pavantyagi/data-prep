@@ -12,15 +12,23 @@
  ============================================================================*/
 
 export const importState = {
+	visible: false,
 	importTypes: [],
+	importItem: null,
 };
 
 export function ImportStateService() {
 	return {
 		setImportTypes,
+		setVisible,
 	};
 
 	function setImportTypes(importTypes) {
 		importState.importTypes = importTypes;
+	}
+
+	function setVisible(importItem) {
+		importState.importItem = importItem;
+		importState.visible = true;
 	}
 }
