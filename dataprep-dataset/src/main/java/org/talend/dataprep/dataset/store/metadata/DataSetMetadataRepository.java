@@ -24,7 +24,7 @@ import org.talend.dataprep.lock.DistributedLock;
 /**
  * Interface for all DatasetMetadata repository implementations.
  */
-public interface DataSetMetadataRepository<D extends DataSetMetadata> {
+public interface DataSetMetadataRepository {
 
     /**
      * Returns <code>true</code> if at least one {@link DataSetMetadata} matches given filter.
@@ -37,14 +37,14 @@ public interface DataSetMetadataRepository<D extends DataSetMetadata> {
      * @return A {@link java.lang.Iterable iterable} of {@link DataSetMetadata data set}. Returned data set are expected
      * to be visible by current user.
      */
-    Stream<D> list();
+    Stream<DataSetMetadata> list();
 
     /**
      * Returns an {@link Iterable} of all {@link DataSetMetadata} that match given filter.
      * @param filter A TQL filter (i.e. storage-agnostic)
      * @return A {@link Iterable} of {@link DataSetMetadata} that matches <code>filter</code>.
      */
-    Stream<D> list(String filter);
+    Stream<DataSetMetadata> list(String filter);
 
     /**
      * <p>
@@ -83,7 +83,7 @@ public interface DataSetMetadataRepository<D extends DataSetMetadata> {
      * @return The {@link DataSetMetadata} with given <code>id</code> or null if non found.
      */
     @Nullable
-    D get(String id);
+    DataSetMetadata get(String id);
 
     /**
      * Removes the {@link DataSetMetadata data set} with given id.
@@ -107,12 +107,12 @@ public interface DataSetMetadataRepository<D extends DataSetMetadata> {
      * @param id the id of a data set
      * @return A {@link java.lang.Iterable iterable} of {@link DataSetMetadata data set}.
      */
-    default Iterable<D> listCompatible(String id) {
+    default Iterable<DataSetMetadata> listCompatible(String id) {
         final DataSetMetadata metadata = get(id);
         if (metadata == null) {
             return Collections.emptyList();
         }
-        final Stream<D> stream = list().filter(m -> m != null && !metadata.equals(m) && metadata.compatible(m));
+        final Stream<DataSetMetadata> stream = list().filter(m -> m != null && !metadata.equals(m) && metadata.compatible(m));
         return stream::iterator;
     }
 

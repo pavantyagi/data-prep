@@ -13,6 +13,10 @@
 
 package org.talend.dataprep.api.service;
 
+import static org.springframework.http.MediaType.*;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+import static org.talend.dataprep.exception.error.APIErrorCodes.UNABLE_TO_SEARCH_DATAPREP;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,12 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.exception.HystrixRuntimeException;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.WebDataBinder;
@@ -46,6 +44,7 @@ import org.talend.dataprep.command.CommandHelper;
 import org.talend.dataprep.command.GenericCommand;
 import org.talend.dataprep.command.dataset.DataSetGet;
 import org.talend.dataprep.command.dataset.DataSetGetMetadata;
+import org.talend.dataprep.dataset.service.UserDataSetMetadata;
 import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.APIErrorCodes;
 import org.talend.dataprep.http.HttpResponseContext;
@@ -55,9 +54,13 @@ import org.talend.dataprep.util.SortAndOrderHelper;
 import org.talend.dataprep.util.SortAndOrderHelper.Order;
 import org.talend.dataprep.util.SortAndOrderHelper.Sort;
 
-import static org.springframework.http.MediaType.*;
-import static org.springframework.web.bind.annotation.RequestMethod.*;
-import static org.talend.dataprep.exception.error.APIErrorCodes.UNABLE_TO_SEARCH_DATAPREP;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 public class DataSetAPI extends APIService {
@@ -275,12 +278,12 @@ public class DataSetAPI extends APIService {
         GenericCommand<InputStream> listDataSets = getCommand(DataSetList.class, sort, order, name, certified, favorite, limit);
         try (InputStream input = listDataSets.execute();
              final JsonGenerator generator = mapper.getFactory().createGenerator(output)) {
-            List<DataSetMetadata> datasets = mapper.readValue(input, new TypeReference<List<DataSetMetadata>>() {
+            List<UserDataSetMetadata> datasets = mapper.readValue(input, new TypeReference<List<UserDataSetMetadata>>() {
             });
             numberOfDataSets = datasets.size();
             generator.writeStartArray();
-            for (DataSetMetadata dataSetMetadata : datasets) {
-                EnrichedDataSetMetadata enrichedDataSet = enrichDataSetMetadata(dataSetMetadata);
+            for (UserDataSetMetadata userDataSetMetadata : datasets) {
+                EnrichedDataSetMetadata enrichedDataSet = enrichDataSetMetadata(userDataSetMetadata);
                 generator.writeObject(enrichedDataSet);
             }
             generator.writeEndArray();
@@ -297,7 +300,7 @@ public class DataSetAPI extends APIService {
      * @param dataSetMetadata the dataset metadata to enrich.
      * @return the enriched dataset metadata.
      */
-    private EnrichedDataSetMetadata enrichDataSetMetadata(DataSetMetadata dataSetMetadata) {
+    private EnrichedDataSetMetadata enrichDataSetMetadata(UserDataSetMetadata dataSetMetadata) {
         final PreparationSearchByDataSetId getPreparations = getCommand(PreparationSearchByDataSetId.class,
                 dataSetMetadata.getId());
         try (InputStream input = getPreparations.execute()) {

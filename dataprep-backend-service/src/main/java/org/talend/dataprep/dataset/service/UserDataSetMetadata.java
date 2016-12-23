@@ -10,7 +10,7 @@
 //
 // ============================================================================
 
-package org.talend.dataprep.dataset.service.messages;
+package org.talend.dataprep.dataset.service;
 
 import java.util.HashSet;
 import java.util.Objects;

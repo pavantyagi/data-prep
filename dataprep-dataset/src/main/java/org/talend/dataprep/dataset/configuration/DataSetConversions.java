@@ -19,20 +19,16 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.talend.dataprep.api.dataset.DataSetMetadata;
-import org.talend.dataprep.api.user.UserData;
 import org.talend.dataprep.conversions.BeanConversionService;
-import org.talend.dataprep.dataset.service.messages.UserDataSetMetadata;
-import org.talend.dataprep.security.Security;
-import org.talend.dataprep.user.store.UserDataRepository;
+import org.talend.dataprep.dataset.conversion.UserDataSetMetadataConverter;
+import org.talend.dataprep.dataset.service.UserDataSetMetadata;
 
 @Configuration
 public class DataSetConversions {
 
+    /** Converter to UserDataSetMetadata. */
     @Autowired
-    private Security security;
-
-    @Autowired
-    private UserDataRepository userDataRepository;
+    private UserDataSetMetadataConverter converter;
 
     @Bean
     public DataSetConversionsInitialization dataSetConversionsInitialization() {
@@ -47,14 +43,7 @@ public class DataSetConversions {
                 final BeanConversionService conversionService = (BeanConversionService) bean;
                 conversionService.register(fromBean(DataSetMetadata.class) //
                         .toBeans(UserDataSetMetadata.class) //
-                        .using(UserDataSetMetadata.class, (metadata, userMetadata) -> {
-                            String userId = security.getUserId();
-                            final UserData userData = userDataRepository.get(userId);
-                            if (userData != null) {
-                                userMetadata.setFavorite(userData.getFavoritesDatasets().contains(metadata.getId()));
-                            }
-                            return userMetadata;
-                        }) //
+                        .using(UserDataSetMetadata.class, converter::toUserDataSetMetadata) //
                         .build()
                 );
                 return conversionService;
@@ -68,4 +57,5 @@ public class DataSetConversions {
         }
 
     }
+
 }

@@ -14,14 +14,13 @@
 package org.talend.dataprep.dataset.store.metadata;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.talend.dataprep.api.dataset.DataSetMetadata;
 import org.talend.dataprep.lock.DistributedLock;
 import org.talend.dataprep.lock.LockFactory;
 
 /**
  * Base class for all DataSetMetadataRepository implementation.
  */
-public abstract class DataSetMetadataRepositoryAdapter implements DataSetMetadataRepository<DataSetMetadata> {
+public abstract class DataSetMetadataRepositoryAdapter implements DataSetMetadataRepository {
 
     /** The lock factory. */
     @Autowired

@@ -65,7 +65,6 @@ import org.talend.dataprep.dataset.service.analysis.synchronous.SchemaAnalysis;
 import org.talend.dataprep.dataset.service.api.Import;
 import org.talend.dataprep.dataset.service.api.Import.ImportBuilder;
 import org.talend.dataprep.dataset.service.api.UpdateColumnParameters;
-import org.talend.dataprep.dataset.service.messages.UserDataSetMetadata;
 import org.talend.dataprep.dataset.store.metadata.DataSetMetadataRepository;
 import org.talend.dataprep.exception.TDPException;
 import org.talend.dataprep.exception.error.DataSetErrorCodes;
@@ -91,7 +90,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @Api(value = "datasets", basePath = "/datasets", description = "Operations on data sets")
-public class DataSetService<D extends DataSetMetadata> extends BaseDataSetService {
+public class DataSetService extends BaseDataSetService {
 
     /** This class' logger. */
     private static final Logger LOG = LoggerFactory.getLogger(DataSetService.class);
@@ -115,7 +114,7 @@ public class DataSetService<D extends DataSetMetadata> extends BaseDataSetServic
      * Dataset metadata repository.
      */
     @Autowired
-    protected DataSetMetadataRepository<D> dataSetMetadataRepository;
+    protected DataSetMetadataRepository dataSetMetadataRepository;
 
     /**
      * Format analyzer needed to update the schema.
@@ -207,15 +206,10 @@ public class DataSetService<D extends DataSetMetadata> extends BaseDataSetServic
             LOG.debug("TQL Filter in use: {}", tqlFilter);
 
             // Get all data sets according to filter
-            try (Stream<D> stream = dataSetMetadataRepository.list(tqlFilter)) {
+            try (Stream<DataSetMetadata> stream = dataSetMetadataRepository.list(tqlFilter)) {
                 final Comparator<DataSetMetadata> comparator = getDataSetMetadataComparator(sort, order);
                 return stream.sorted(comparator) //
-                        .map(m -> conversionService.convert(m, UserDataSetMetadata.class, (metadata, message) -> {
-                            if (userData != null) {
-                                message.setFavorite(userData.getFavoritesDatasets().contains(metadata.getId()));
-                            }
-                            return message;
-                        })) //
+                        .map(m -> conversionService.convert(m, UserDataSetMetadata.class)) //
                         .limit(limit ? datasetListLimit : Long.MAX_VALUE) //
                         .collect(Collectors.toList());
             }
@@ -241,21 +235,16 @@ public class DataSetService<D extends DataSetMetadata> extends BaseDataSetServic
             @ApiParam(value = "Sort key (by name or date).") @RequestParam(defaultValue = "DATE", required = false) String sort,
             @ApiParam(value = "Order for sort key (desc or asc).") @RequestParam(defaultValue = "DESC", required = false) String order) {
 
-        Spliterator<D> iterator = dataSetMetadataRepository.listCompatible(dataSetId).spliterator();
+        Spliterator<DataSetMetadata> iterator = dataSetMetadataRepository.listCompatible(dataSetId).spliterator();
 
         final Comparator<DataSetMetadata> comparator = getDataSetMetadataComparator(sort, order);
 
         // Return sorted results
-        try (Stream<D> stream = stream(iterator, false)) {
+        try (Stream<DataSetMetadata> stream = stream(iterator, false)) {
             String userId = security.getUserId();
             final UserData userData = userDataRepository.get(userId);
             return stream.filter(metadata -> !metadata.getLifecycle().isImporting()) //
-                    .map(m -> conversionService.convert(m , UserDataSetMetadata.class, (metadata, message) -> {
-                        if (userData != null) {
-                            message.setFavorite(userData.getFavoritesDatasets().contains(metadata.getId()));
-                        }
-                        return message;
-                    })) //
+                    .map(m -> conversionService.convert(m, UserDataSetMetadata.class)) //
                     .sorted(comparator) //
                     .collect(Collectors.toList());
         }
