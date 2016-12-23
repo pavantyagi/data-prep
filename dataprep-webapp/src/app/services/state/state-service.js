@@ -167,7 +167,7 @@ export function StateService(RouteStateService, routeState,
 
 		// import
 		setImportTypes: ImportStateService.setImportTypes,
-		setCurrentImportType: ImportStateService.setCurrentImportType,
+		setImportVisible: ImportStateService.setVisible,
 
 		// export
 		setExportTypes: ExportStateService.setExportTypes,

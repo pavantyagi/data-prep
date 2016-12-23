@@ -11,20 +11,16 @@
 
  ============================================================================*/
 
-const HomeComponent = {
-	template: `
-		<layout>
-			<ui-view name="home-content"></ui-view>
-		</layout>
+import DatasetEditTcompCtrl from './dataset-edit-tcomp.controller';
 
-		<dataset-xls-preview></dataset-xls-preview>
-		<dataset-editor></dataset-editor>
-		<folder-creator></folder-creator>
-		<preparation-copy-move></preparation-copy-move>
-		<preparation-creator></preparation-creator>
-		<insertion-home></insertion-home>
-		<about></about>
-	`,
+import template from './dataset-edit-tcomp.html';
+
+const DatasetEditTcompComponent = {
+	templateUrl: template,
+	bindings: {
+		item: '<',
+	},
+	controller: DatasetEditTcompCtrl,
 };
 
-export default HomeComponent;
+export default DatasetEditTcompComponent;
